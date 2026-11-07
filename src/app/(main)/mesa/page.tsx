@@ -403,6 +403,7 @@ function GameBoard({
     return found >= 0 ? found : Math.floor((board.length - 1) / 2)
   }, [board, openingTile])
   const lastPlayed = useLastPlayed(hand?.id ?? null, board ?? [])
+  const [summary, dismissSummary] = useHandSummary(hand, now)
 
   const canPass = moves.length === 1 && moves[0].type === 'pass'
   const sidesFor = (tile: Tile): Side[] =>
@@ -471,7 +472,9 @@ function GameBoard({
         <span>
           {players === 4 ? 'Nosotros' : 'Tú'} <b className="text-emerald-300">{myTeamScore}</b>
         </span>
-        <span className="text-neutral-500">Mano {hand.handNo}</span>
+        <span className="text-neutral-500">
+          Mano {hand.handNo} · a {game.target_points}
+        </span>
         <span>
           {players === 4 ? 'Ellos' : playerAt(seatAt(1))?.name} <b>{theirScore}</b>
         </span>
@@ -496,7 +499,15 @@ function GameBoard({
         {players === 4 && <div className="flex items-center">{opponent(1)}</div>}
       </div>
 
-      {hand.status === 'finished' && hand.result && <HandOutcome view={view} myTeam={me.team} />}
+      {summary && (
+        <HandSummaryCard
+          view={view}
+          summary={summary}
+          myTeam={me.team}
+          secondsLeft={Math.max(0, Math.ceil((summary.until - now) / 1000))}
+          onClose={dismissSummary}
+        />
+      )}
 
       <div className={`rounded-xl p-3 ${myTurn ? 'bg-emerald-950/40 ring-1 ring-emerald-600' : 'bg-neutral-900'}`}>
         <p className="mb-2 text-center text-sm">
@@ -543,15 +554,98 @@ function GameBoard({
   )
 }
 
-function HandOutcome({ view, myTeam }: { view: TableView; myTeam: number }) {
-  const result = view.hand!.result!
+interface HandSummary {
+  handId: string
+  handNo: number
+  result: NonNullable<HandView['result']>
+  until: number
+}
+
+/** How long the end-of-hand summary stays up (the next hand is already dealt underneath). */
+const SUMMARY_MS = 5000
+
+/**
+ * Keeps the result of the hand that just ended on screen for a few seconds: the server deals
+ * the next hand at once, so without this the result would vanish before anyone reads it.
+ */
+function useHandSummary(hand: HandView | null, now: number): [HandSummary | null, () => void] {
+  const [summary, setSummary] = useState<HandSummary | null>(null)
+  const [dismissed, setDismissed] = useState<string | null>(null)
+  if (hand?.status === 'finished' && hand.result && summary?.handId !== hand.id && dismissed !== hand.id) {
+    // Adjusting state while rendering (React's pattern for values derived from previous props).
+    setSummary({ handId: hand.id, handNo: hand.handNo, result: hand.result, until: now + SUMMARY_MS })
+  }
+  const visible = summary && dismissed !== summary.handId && now < summary.until ? summary : null
+  return [visible, () => summary && setDismissed(summary.handId)]
+}
+
+function HandSummaryCard({
+  view,
+  summary,
+  myTeam,
+  secondsLeft,
+  onClose,
+}: {
+  view: TableView
+  summary: HandSummary
+  myTeam: number
+  secondsLeft: number
+  onClose: () => void
+}) {
+  const game = view.game!
+  const { result } = summary
+  const pairs = game.players === 4
   const winner = result.winnerSeat !== null ? view.players.find((p) => p.seat === result.winnerSeat)?.name : null
   const ours = result.winnerTeam === myTeam
-  const text =
+  const rival = pairs ? 'Ellos' : (view.players.find((p) => p.team !== myTeam)?.name ?? 'Rival')
+  const mine = myTeam === 0 ? game.score_team0 : game.score_team1
+  const theirs = myTeam === 0 ? game.score_team1 : game.score_team0
+  const gameOver = mine >= game.target_points || theirs >= game.target_points || game.status !== 'playing'
+
+  const title =
     result.kind === 'void'
-      ? 'Tranque empatado: mano nula.'
-      : `${result.kind === 'domino' ? `Dominó de ${winner}` : `Tranque: gana ${winner}`} · ${ours ? '+' : ''}${result.points} puntos ${ours ? 'para ti' : 'para ellos'}`
-  return <Notice tone={ours ? 'success' : 'info'}>{text}</Notice>
+      ? 'Tranque empatado: mano nula'
+      : result.kind === 'domino'
+        ? `Dominó de ${winner ?? '—'}`
+        : `Tranque: gana ${winner ?? '—'}`
+
+  return (
+    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/70 p-4" role="dialog" aria-modal="true" onClick={onClose}>
+      <div
+        className={`w-full max-w-sm space-y-4 rounded-2xl border bg-neutral-900 p-5 text-center ${
+          result.kind !== 'void' && ours ? 'border-emerald-600' : 'border-neutral-700'
+        }`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div>
+          <p className="text-xs uppercase tracking-wide text-neutral-500">Fin de la mano {summary.handNo}</p>
+          <p className="mt-1 text-lg font-bold">{title}</p>
+          {result.kind !== 'void' && (
+            <p className={`text-sm ${ours ? 'text-emerald-300' : 'text-neutral-400'}`}>
+              +{result.points} puntos {ours ? (pairs ? 'para nosotros' : 'para ti') : `para ${pairs ? 'ellos' : rival}`}
+            </p>
+          )}
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <div className="rounded-xl bg-neutral-800 p-3">
+            <p className="truncate text-xs text-neutral-400">{pairs ? 'Nosotros' : 'Tú'}</p>
+            <p className="text-3xl font-bold text-emerald-300">{mine}</p>
+          </div>
+          <div className="rounded-xl bg-neutral-800 p-3">
+            <p className="truncate text-xs text-neutral-400">{rival}</p>
+            <p className="text-3xl font-bold">{theirs}</p>
+          </div>
+        </div>
+        <p className="text-sm text-neutral-400">
+          Se juega a {game.target_points} puntos
+          {!gameOver && ` · faltan ${Math.max(0, game.target_points - mine)} para ganar`}
+        </p>
+        <Button className="w-full" onClick={onClose}>
+          {gameOver ? 'Ver resultado' : `Siguiente mano${secondsLeft > 0 ? ` en ${secondsLeft}…` : ''}`}
+        </Button>
+      </div>
+    </div>
+  )
 }
 
 function useNow(intervalMs = 500): number {
