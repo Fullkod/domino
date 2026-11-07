@@ -18,7 +18,7 @@ Sustituye a `2026-11-06-estado-arranque.md`. Detalle por fase en `.titan/plans/p
   no cambiarlo más: obliga a reinstalar), icono provisional en `assets/`. Firma de release: clave fuera del repo
   (`~/.android-keys/domino/`), leída de `android/keystore.properties` (ignorado); ruta y contraseña en Tasknic →
   «Firma del APK». Probado en BlueStacks (Android 9): `.titan/qa/2026-11-07-apk/report.md`. **Las versiones para
-  jugadores se publican con el GitHub Action** (ver la entrada de contactos y distribución); publicada la 0.1.3.
+  jugadores se publican con el GitHub Action** (ver la entrada de contactos y distribución); publicada la 0.1.4 (2026-11-07: tablero en serpiente, jugadas al instante, ojito en la contraseña, movimientos con mesa y «hace…»).
 - **2026-11-07 (tarde)**: migraciones `150000`–`170000` aplicadas (contactos, `retire`, parte de la plataforma, bucket
   `apk`, rol `auditor`, `audit_books`/`audit_movements`). QA 15/15 en `.titan/qa/2026-11-07-contactos-y-supervision/`.
   Ver `2026-11-07-contactos-distribucion-supervision.md`.
