@@ -5,7 +5,13 @@ type Tables = Database['public']['Tables']
 export type Club = Tables['clubs']['Row']
 export type ClubMember = Tables['club_members']['Row']
 export type TableTemplate = Tables['table_templates']['Row']
-export type ChipLedgerRow = Tables['chip_ledger']['Row']
+export type ChipLedgerRow = Tables['chip_ledger']['Row'] & {
+  /** The table the movement came from (entries, prizes, charges, refunds). */
+  games?: { players: number; table_templates: { name: string } | null } | null
+}
+
+// Ledger rows with the game's table name, so a prize reads "Premio de mesa · Mano a mano 50".
+const LEDGER_SELECT = '*, games(players, table_templates(name))'
 export type MemberRole = 'owner' | 'admin' | 'player'
 export type MemberStatus = 'pending' | 'active' | 'suspended' | 'rejected'
 
@@ -81,7 +87,7 @@ export async function listMyMovements(
   const movements = rows(
     await db()
       .from('chip_ledger')
-      .select('*')
+      .select(LEDGER_SELECT)
       .or(`from_account.eq.${account.id},to_account.eq.${account.id}`)
       .order('created_at', { ascending: false })
       .limit(50),
@@ -177,7 +183,7 @@ export async function clubReport(clubId: string, from: Date, to: Date) {
 
 export async function listClubMovements(clubId: string): Promise<ChipLedgerRow[]> {
   return rows(
-    await db().from('chip_ledger').select('*').eq('club_id', clubId).order('created_at', { ascending: false }).limit(100),
+    await db().from('chip_ledger').select(LEDGER_SELECT).eq('club_id', clubId).order('created_at', { ascending: false }).limit(100),
   )
 }
 
@@ -202,6 +208,14 @@ export const MOVEMENT_LABEL: Record<string, string> = {
   rake: 'Cargo de mesa',
   refund: 'Devolución',
   adjustment: 'Ajuste',
+}
+
+/** "Premio de mesa · Mano a mano 50 (1 vs 1)", or just the kind when no table is involved. */
+export function movementTitle(m: Pick<ChipLedgerRow, 'kind' | 'games'>): string {
+  const label = MOVEMENT_LABEL[m.kind] ?? m.kind
+  const name = m.games?.table_templates?.name
+  if (!m.games || !name) return label
+  return `${label} · ${name} (${m.games.players === 2 ? '1 vs 1' : 'Parejas'})`
 }
 
 export function templateLabel(t: Pick<TableTemplate, 'max_pip' | 'format'>): string {

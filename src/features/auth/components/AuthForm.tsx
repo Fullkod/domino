@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState, type FormEvent } from 'react'
+import { PasswordInput } from '@/shared/components/PasswordInput'
 import { Button, Field, Input, Notice } from '@/shared/components/ui'
 import { BRAND } from '@/shared/constants/brand'
 import { errorMessage } from '@/shared/lib/errors'
@@ -67,8 +68,7 @@ export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
           {errors.email && <span className="text-xs text-red-400">{errors.email}</span>}
         </Field>
         <Field label="Contraseña" hint={isSignup ? 'Al menos 8 caracteres.' : undefined}>
-          <Input
-            type="password"
+          <PasswordInput
             value={values.password}
             onChange={set('password')}
             autoComplete={isSignup ? 'new-password' : 'current-password'}

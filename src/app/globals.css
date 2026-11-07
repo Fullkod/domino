@@ -11,3 +11,17 @@ body {
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
 }
+
+/* Last tile played on the board: a short fade-in so the eye finds it. */
+@keyframes board-tile-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.board-tile-new {
+  animation: board-tile-in 250ms ease-out;
+}

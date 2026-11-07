@@ -1,12 +1,14 @@
 'use client'
 
-import { legalMoves } from '@engine/rules'
-import type { HandState, Move, Seat, Side, Tile } from '@engine/types'
+import { applyMove, legalMoves } from '@engine/rules'
+import { sameTile } from '@engine/tiles'
+import type { HandState, Move, PlayerCount, Seat, Side, Tile } from '@engine/types'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { getMyClub, type MyClub } from '@/features/clubs/services/clubs-service'
 import { ContactSheet } from '@/features/contacts/components/ContactSheet'
+import { BoardChain } from '@/features/tables/components/BoardChain'
 import { DominoTile, HiddenTiles } from '@/features/tables/components/DominoTile'
 import {
   gameAction,
@@ -14,6 +16,8 @@ import {
   loadTableView,
   setReady,
   subscribeTable,
+  toHandView,
+  type HandView,
   type TableView,
 } from '@/features/tables/services/tables-service'
 import { Badge, Button, Card, Notice, Spinner, formatChips } from '@/shared/components/ui'
@@ -47,29 +51,73 @@ function Mesa() {
   const [contactOpen, setContactOpen] = useState(false)
   const [busy, setBusy] = useState(false)
   const [version, setVersion] = useState(0)
-  const load = useCallback(() => setVersion((v) => v + 1), [])
 
-  // Each bump reloads the view; a newer reload discards the result of an older one.
-  // `busy` (set by an action) only clears once the fresh view lands, so the board never
-  // offers a move based on the state from before the player's own action.
+  // Realtime sends several events per move (hands, hand_tiles, games…): coalesce them into
+  // one reload instead of restarting it for each event.
+  const reloadTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const load = useCallback(() => {
+    if (reloadTimer.current) clearTimeout(reloadTimer.current)
+    reloadTimer.current = setTimeout(() => {
+      reloadTimer.current = null
+      setVersion((v) => v + 1)
+    }, 150)
+  }, [])
+  useEffect(
+    () => () => {
+      if (reloadTimer.current) clearTimeout(reloadTimer.current)
+    },
+    [],
+  )
+
+  // Each bump reloads the view; a newer reload discards the result of an older one, and
+  // `mergeView` never lets a reload replace a newer hand (from Realtime or an optimistic move).
   useEffect(() => {
     let current = true
     loadTableView(tableId, userId).then(
       (next) => {
         if (!current) return
-        setView(next)
-        setBusy(false)
+        setView((prev) => mergeView(prev, next))
       },
       (err) => {
         if (!current) return
         setError(errorMessage(err))
-        setBusy(false)
       },
     )
     return () => {
       current = false
     }
   }, [tableId, userId, version])
+
+  // Hand and tile payloads update the board right away; the coalesced reload follows.
+  const pendingTiles = useRef<{ handId: string; tiles: Tile[] } | null>(null)
+  const onHand = useCallback((row: Parameters<typeof toHandView>[0]) => {
+    setView((prev) => {
+      if (!prev?.game || row.game_id !== prev.game.id) return prev
+      const old = prev.hand
+      if (old && (row.hand_no < old.handNo || (row.id === old.id && row.version <= old.version))) return prev
+      const sameHand = old?.id === row.id
+      const hand = toHandView(row, sameHand ? old.openingTile : null)
+      if (!hand.openingTile && hand.board.length === 1) hand.openingTile = hand.board[0].tile
+      let myTiles = prev.myTiles
+      if (!sameHand) {
+        const pending = pendingTiles.current
+        myTiles = pending?.handId === row.id ? pending.tiles : []
+      }
+      return { ...prev, hand, myTiles }
+    })
+  }, [])
+  const onTiles = useCallback(
+    (row: { hand_id: string; seat: number; tiles: Tile[] }) => {
+      pendingTiles.current = { handId: row.hand_id, tiles: row.tiles }
+      setView((prev) => {
+        if (!prev?.hand || prev.hand.id !== row.hand_id) return prev
+        const me = prev.players.find((p) => p.userId === userId)
+        if (!me || me.seat !== row.seat) return prev
+        return { ...prev, myTiles: row.tiles.slice() }
+      })
+    },
+    [userId],
+  )
 
   // Balance for the waiting room: refreshed with every reload while no game is running.
   const clubId = view?.table.club_id ?? null
@@ -87,7 +135,27 @@ function Mesa() {
   }, [clubId, inGame, userId, version])
 
   const gameId = view?.game?.id ?? null
-  useEffect(() => subscribeTable(tableId, gameId, load), [tableId, gameId, load])
+  useEffect(
+    () => subscribeTable(tableId, gameId, { onChange: load, onHand, onTiles }),
+    [tableId, gameId, load, onHand, onTiles],
+  )
+
+  // Shows the player's own move at once; the server's answer (Realtime) replaces it.
+  const optimistic = useRef<{ hand: HandView; myTiles: Tile[] } | null>(null)
+  const playOptimistic = useCallback(
+    (move: Move) => {
+      setView((prev) => {
+        if (!prev?.hand || !prev.game) return prev
+        const me = prev.players.find((p) => p.userId === userId)
+        if (!me) return prev
+        const next = predictMove(prev.hand, prev.myTiles, me.seat as Seat, prev.game.players, move)
+        if (!next) return prev
+        optimistic.current = { hand: prev.hand, myTiles: prev.myTiles }
+        return { ...prev, hand: next.hand, myTiles: next.myTiles }
+      })
+    },
+    [userId],
+  )
 
   const run = useCallback(
     async (fn: () => Promise<unknown>) => {
@@ -96,6 +164,13 @@ function Mesa() {
       try {
         await fn()
       } catch (err) {
+        // Undo an optimistic move that the server did not accept.
+        setView((prev) => {
+          const saved = optimistic.current
+          optimistic.current = null
+          if (!saved || !prev?.hand || Number.isInteger(prev.hand.version)) return prev
+          return { ...prev, hand: saved.hand, myTiles: saved.myTiles }
+        })
         const code = err instanceof Error ? err.message : ''
         if (errorMessage(err) === errorMessage('insufficient_chips')) {
           setContactOpen(true)
@@ -105,6 +180,7 @@ function Mesa() {
         // not an error for the player, the reload below shows the current state.
         if (!SILENT_GAME_ERRORS.has(code)) setError(GAME_ERRORS[code] ?? errorMessage(err))
       } finally {
+        setBusy(false)
         load()
       }
     },
@@ -150,7 +226,7 @@ function Mesa() {
       </div>
       {error && <Notice>{error}</Notice>}
       {playing ? (
-        <GameBoard view={view} userId={userId} busy={busy} run={run} />
+        <GameBoard view={view} userId={userId} busy={busy} run={run} predict={playOptimistic} />
       ) : (
         <WaitingRoom
           view={view}
@@ -284,11 +360,13 @@ function GameBoard({
   userId,
   busy,
   run,
+  predict,
 }: {
   view: TableView
   userId: string
   busy: boolean
   run: (fn: () => Promise<unknown>) => Promise<void>
+  predict: (move: Move) => void
 }) {
   const game = view.game!
   const hand = view.hand
@@ -316,6 +394,16 @@ function GameBoard({
     return legalMoves(state, me.seat as Seat)
   }, [hand, me, myTurn, players, view.myTiles])
 
+  const board = hand?.board
+  const boardPips = useMemo(() => (board ?? []).map((p) => p.oriented), [board])
+  const openingTile = hand?.openingTile ?? null
+  const openingIndex = useMemo(() => {
+    if (!board || board.length === 0) return 0
+    const found = openingTile ? board.findIndex((p) => sameTile(p.tile, openingTile)) : -1
+    return found >= 0 ? found : Math.floor((board.length - 1) / 2)
+  }, [board, openingTile])
+  const lastPlayed = useLastPlayed(hand?.id ?? null, board ?? [])
+
   const canPass = moves.length === 1 && moves[0].type === 'pass'
   const sidesFor = (tile: Tile): Side[] =>
     moves.flatMap((m) => (m.type === 'play' && m.tile[0] === tile[0] && m.tile[1] === tile[1] ? [m.side] : []))
@@ -339,7 +427,13 @@ function GameBoard({
 
   function play(tile: Tile, side: Side) {
     setSelected(null)
+    predict({ type: 'play', tile, side })
     void run(() => gameAction({ action: 'play', gameId: game.id, tile, side }))
+  }
+
+  function pass() {
+    predict({ type: 'pass' })
+    void run(() => gameAction({ action: 'pass', gameId: game.id }))
   }
 
   function onTile(tile: Tile) {
@@ -386,21 +480,17 @@ function GameBoard({
       <div className="flex justify-center">{opponent(players === 4 ? 2 : 1)}</div>
       <div className="flex items-stretch gap-2">
         {players === 4 && <div className="flex items-center">{opponent(3)}</div>}
-        <div className="flex min-h-[9rem] flex-1 flex-wrap content-center items-center justify-center gap-0.5 rounded-xl bg-emerald-950/60 p-2">
+        <div className="flex min-h-[9rem] min-w-0 flex-1 items-center justify-center rounded-xl bg-emerald-950/60 p-2">
           {hand.board.length === 0 ? (
             <span className="text-sm text-emerald-200/70">
               {hand.requiredOpening ? `Sale el ${hand.requiredOpening[0]}-${hand.requiredOpening[1]}` : 'Mesa vacía'}
             </span>
           ) : (
-            hand.board.map((p, i) => (
-              <DominoTile
-                key={i}
-                a={p.oriented[0]}
-                b={p.oriented[1]}
-                size="sm"
-                orientation={p.oriented[0] === p.oriented[1] ? 'vertical' : 'horizontal'}
-              />
-            ))
+            <BoardChain
+              board={boardPips}
+              openingIndex={openingIndex}
+              highlightIndex={lastPlayed}
+            />
           )}
         </div>
         {players === 4 && <div className="flex items-center">{opponent(1)}</div>}
@@ -443,7 +533,7 @@ function GameBoard({
         )}
         {myTurn && canPass && (
           <div className="mt-3 flex justify-center">
-            <Button onClick={() => run(() => gameAction({ action: 'pass', gameId: game.id }))} disabled={busy}>
+            <Button onClick={pass} disabled={busy}>
               Pasar
             </Button>
           </div>
@@ -471,4 +561,86 @@ function useNow(intervalMs = 500): number {
     return () => clearInterval(id)
   }, [intervalMs])
   return now
+}
+
+/** Index of the tile just added to the board (either end), or null. */
+function useLastPlayed(handId: string | null, board: readonly { tile: Tile }[]): number | null {
+  const first = board[0]?.tile ?? null
+  const [seen, setSeen] = useState<{ handId: string | null; first: Tile | null; length: number; last: number | null }>({
+    handId: null,
+    first: null,
+    length: 0,
+    last: null,
+  })
+  const changed =
+    seen.handId !== handId ||
+    seen.length !== board.length ||
+    (seen.first !== null && first !== null && !sameTile(seen.first, first))
+  if (!changed) return seen.last
+  // Adjusting state while rendering (React's pattern for values derived from previous props).
+  let last: number | null = board.length === 1 ? 0 : null
+  if (seen.handId === handId && board.length === seen.length + 1 && board.length > 1) {
+    last = seen.first && first && !sameTile(seen.first, first) ? 0 : board.length - 1
+  }
+  setSeen({ handId, first, length: board.length, last })
+  return last
+}
+
+/** Newer state wins: a reload never replaces a later hand (Realtime or optimistic). */
+function mergeView(prev: TableView | null | undefined, next: TableView | null): TableView | null {
+  if (!prev?.hand || !next?.hand || prev.game?.id !== next.game?.id) return next
+  const a = prev.hand
+  const b = next.hand
+  if (b.handNo < a.handNo || (b.id === a.id && b.version < a.version)) {
+    return { ...next, hand: a, myTiles: prev.myTiles }
+  }
+  if (b.id === a.id && !b.openingTile && a.openingTile) return { ...next, hand: { ...b, openingTile: a.openingTile } }
+  return next
+}
+
+/**
+ * The player's own move as the server will apply it, to draw it before the answer arrives.
+ * Only the board, the ends, the turn and the player's tiles are predicted; the version is
+ * set between the current one and the next so the server's row always replaces it.
+ */
+function predictMove(
+  hand: HandView,
+  myTiles: Tile[],
+  seat: Seat,
+  players: number,
+  move: Move,
+): { hand: HandView; myTiles: Tile[] } | null {
+  if (hand.status !== 'playing' || hand.turnSeat !== seat) return null
+  const hands: Tile[][] = Array.from({ length: players }, () => [])
+  hands[seat] = myTiles
+  const state: HandState = {
+    hands,
+    board: hand.board,
+    ends: hand.ends,
+    turn: seat,
+    starter: hand.starterSeat as Seat,
+    requiredOpening: hand.requiredOpening,
+    passesInRow: 0,
+    status: 'playing',
+    result: null,
+  }
+  const outcome = applyMove(state, seat, move, { maxPip: 6, targetPoints: 1000, scoring: 'all_hands' })
+  if (!outcome.ok) return null
+  const next = outcome.state
+  const tileCounts = hand.tileCounts.slice()
+  if (move.type === 'play') tileCounts[seat] = Math.max(0, (tileCounts[seat] ?? 1) - 1)
+  return {
+    hand: {
+      ...hand,
+      board: next.board,
+      ends: next.ends,
+      turnSeat: (seat + 1) % (players as PlayerCount),
+      turnDeadline: null,
+      tileCounts,
+      requiredOpening: null,
+      openingTile: hand.openingTile ?? next.board[0]?.tile ?? null,
+      version: hand.version + 0.5,
+    },
+    myTiles: next.hands[seat].slice(),
+  }
 }

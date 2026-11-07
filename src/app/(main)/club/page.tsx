@@ -7,7 +7,7 @@ import {
   getMyClub,
   listMyMovements,
   listTemplates,
-  MOVEMENT_LABEL,
+  movementTitle,
   templateLabel,
   type ChipLedgerRow,
   type MyClub,
@@ -18,6 +18,7 @@ import { getMySeat, joinTable } from '@/features/tables/services/tables-service'
 import { Button, Card, Notice, Spinner, formatChips } from '@/shared/components/ui'
 import { useCurrentUser } from '@/shared/hooks/session'
 import { errorMessage } from '@/shared/lib/errors'
+import { whenLabel } from '@/shared/lib/time'
 
 export default function ClubPage() {
   return (
@@ -216,10 +217,10 @@ const SHORT_REASON = 'No tienes fichas suficientes para esta mesa. Habla con el 
 
 function MovementRow({ movement, incoming }: { movement: ChipLedgerRow; incoming: boolean }) {
   return (
-    <li className="flex items-center justify-between py-2">
-      <div>
-        <p>{MOVEMENT_LABEL[movement.kind] ?? movement.kind}</p>
-        <p className="text-xs text-neutral-500">{new Date(movement.created_at).toLocaleString('es')}</p>
+    <li className="flex items-center justify-between gap-3 py-2">
+      <div className="min-w-0">
+        <p>{movementTitle(movement)}</p>
+        <p className="text-xs text-neutral-500">{whenLabel(movement.created_at)}</p>
       </div>
       <span className={incoming ? 'text-emerald-300' : 'text-red-300'}>
         {incoming ? '+' : '−'}

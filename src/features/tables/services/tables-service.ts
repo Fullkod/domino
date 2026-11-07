@@ -67,6 +67,10 @@ export interface HandView {
   status: 'playing' | 'finished'
   result: { kind: 'domino' | 'blocked' | 'void'; winnerTeam: number | null; winnerSeat: number | null; points: number } | null
   turnDeadline: string | null
+  /** Optimistic-lock counter of the row; a higher version is newer state. */
+  version: number
+  /** First tile of the hand (centre of the drawn board); null while unknown. */
+  openingTile: Tile | null
 }
 
 export interface TableView {
@@ -126,47 +130,99 @@ export async function loadTableView(tableId: string, userId: string): Promise<Ta
 
   const h = must(hand)
   if (h) {
-    view.hand = {
-      id: h.id,
-      handNo: h.hand_no,
-      turnSeat: h.turn_seat,
-      starterSeat: h.starter_seat,
-      board: (h.board ?? []) as unknown as PlacedTile[],
-      ends: h.left_end === null || h.right_end === null ? null : { left: h.left_end, right: h.right_end },
-      tileCounts: h.tile_counts,
-      requiredOpening: h.required_opening as unknown as Tile | null,
-      status: h.status as HandView['status'],
-      result: h.result as unknown as HandView['result'],
-      turnDeadline: h.turn_deadline,
-    }
+    view.hand = toHandView(h)
     const me = view.players.find((p) => p.userId === userId)
-    if (me) {
+    const [mine, opening] = await Promise.all([
       // RLS only returns the caller's own row.
-      const mine = must(await db().from('hand_tiles').select('tiles').eq('hand_id', h.id).eq('seat', me.seat).maybeSingle())
-      view.myTiles = ((mine?.tiles ?? []) as unknown as Tile[]).slice()
-    }
+      me
+        ? db().from('hand_tiles').select('tiles').eq('hand_id', h.id).eq('seat', me.seat).maybeSingle()
+        : Promise.resolve({ data: null, error: null }),
+      view.hand.board.length > 0 ? loadOpeningTile(h.id) : Promise.resolve(null),
+    ])
+    view.myTiles = ((must(mine)?.tiles ?? []) as unknown as Tile[]).slice()
+    view.hand.openingTile = opening
   }
   return view
 }
 
+type HandRow = Tables['hands']['Row']
+
+/** Maps a `hands` row (from a query or a Realtime payload) to the client view. */
+export function toHandView(h: HandRow, openingTile: Tile | null = null): HandView {
+  return {
+    id: h.id,
+    handNo: h.hand_no,
+    turnSeat: h.turn_seat,
+    starterSeat: h.starter_seat,
+    board: (h.board ?? []) as unknown as PlacedTile[],
+    ends: h.left_end === null || h.right_end === null ? null : { left: h.left_end, right: h.right_end },
+    tileCounts: h.tile_counts,
+    requiredOpening: h.required_opening as unknown as Tile | null,
+    status: h.status as HandView['status'],
+    result: h.result as unknown as HandView['result'],
+    turnDeadline: h.turn_deadline,
+    version: h.version,
+    openingTile,
+  }
+}
+
+// The opening tile never changes during a hand: fetched once per hand.
+const openingCache = new Map<string, Tile>()
+
+async function loadOpeningTile(handId: string): Promise<Tile | null> {
+  const cached = openingCache.get(handId)
+  if (cached) return cached
+  const { data } = await db()
+    .from('moves')
+    .select('tile')
+    .eq('hand_id', handId)
+    .in('kind', ['play', 'timeout_play'])
+    .order('seq')
+    .limit(1)
+    .maybeSingle()
+  const tile = (data?.tile ?? null) as unknown as Tile | null
+  if (tile) openingCache.set(handId, tile)
+  return tile
+}
+
+export interface TableListeners {
+  /** Something at the table changed: reload the view. */
+  onChange: () => void
+  /** A hand row of the current game was inserted or updated (applied before the reload). */
+  onHand?: (row: HandRow) => void
+  /** The caller's own tiles changed (RLS only delivers the caller's rows). */
+  onTiles?: (row: { hand_id: string; seat: number; tiles: Tile[] }) => void
+}
+
 /**
- * Re-runs `onChange` whenever anything visible at the table changes. Resubscribe when the
- * current game changes so hand updates are filtered to that game.
+ * Calls the listeners whenever anything visible at the table changes. Hand and tile payloads
+ * are handed over as they arrive so the board updates without waiting for a reload.
+ * Resubscribe when the current game changes so hand updates are filtered to that game.
  */
-export function subscribeTable(tableId: string, gameId: string | null, onChange: () => void): () => void {
+export function subscribeTable(tableId: string, gameId: string | null, listeners: TableListeners): () => void {
+  const { onChange, onHand, onTiles } = listeners
   const supabase = db()
   let channel = supabase
     .channel(`table:${tableId}:${gameId ?? 'none'}`)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'game_tables', filter: `id=eq.${tableId}` }, onChange)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'table_seats', filter: `table_id=eq.${tableId}` }, onChange)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'games', filter: `table_id=eq.${tableId}` }, onChange)
-    // hand_tiles: RLS only delivers the caller's own rows.
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'hand_tiles' }, onChange)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'hand_tiles' }, (payload) => {
+      const row = payload.new as { hand_id?: string; seat?: number; tiles?: unknown }
+      if (onTiles && row?.hand_id && typeof row.seat === 'number' && Array.isArray(row.tiles)) {
+        onTiles({ hand_id: row.hand_id, seat: row.seat, tiles: row.tiles as Tile[] })
+      }
+      onChange()
+    })
   if (gameId) {
     channel = channel.on(
       'postgres_changes',
       { event: '*', schema: 'public', table: 'hands', filter: `game_id=eq.${gameId}` },
-      onChange,
+      (payload) => {
+        const row = payload.new as Partial<HandRow> | null
+        if (onHand && row?.id) onHand(row as HandRow)
+        onChange()
+      },
     )
   }
   channel.subscribe()

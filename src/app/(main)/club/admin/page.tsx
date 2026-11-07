@@ -11,7 +11,7 @@ import {
   listClubMovements,
   listMembers,
   listTemplates,
-  MOVEMENT_LABEL,
+  movementTitle,
   moveChips,
   reviewMember,
   ROLE_LABEL,
@@ -32,6 +32,7 @@ import { ContactsEditor } from '@/features/contacts/components/ContactsEditor'
 import { Badge, Button, Card, Field, Input, Notice, Select, Spinner, formatChips } from '@/shared/components/ui'
 import { useCurrentUser } from '@/shared/hooks/session'
 import { errorMessage } from '@/shared/lib/errors'
+import { whenLabel } from '@/shared/lib/time'
 
 type Tab = 'requests' | 'members' | 'tables' | 'treasury' | 'contacts'
 
@@ -575,11 +576,11 @@ function Treasury({ data, clubId, isOwner, act }: { data: AdminData; clubId: str
         ) : (
           <ul className="divide-y divide-neutral-800 text-sm">
             {data.movements.map((m) => (
-              <li key={m.id} className="flex items-center justify-between py-2">
-                <div>
-                  <p>{MOVEMENT_LABEL[m.kind] ?? m.kind}</p>
+              <li key={m.id} className="flex items-center justify-between gap-3 py-2">
+                <div className="min-w-0">
+                  <p>{movementTitle(m)}</p>
                   <p className="text-xs text-neutral-500">
-                    {new Date(m.created_at).toLocaleString('es')}
+                    {whenLabel(m.created_at)}
                     {m.note ? ` · ${m.note}` : ''}
                   </p>
                 </div>
