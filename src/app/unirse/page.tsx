@@ -4,6 +4,7 @@ import { Capacitor } from '@capacitor/core'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { Suspense, useEffect, useState } from 'react'
+import { DownloadAppButton } from '@/features/app-update/components/DownloadAppButton'
 import { findClub, listMyClubs, requestJoinClub, type MyClub } from '@/features/clubs/services/clubs-service'
 import { cleanCode, clearPendingInvite, invitePath, savePendingInvite } from '@/features/invites/lib/invite'
 import { Button, Card, Notice, Spinner } from '@/shared/components/ui'
@@ -13,7 +14,6 @@ import { errorMessage } from '@/shared/lib/errors'
 
 // Invitation link target: /unirse/?c=CODE (opened by the APK through App Links, or in a browser).
 const APP_ID = 'com.dominoclubes.app'
-const APK_URL = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/apk/domino.apk`
 
 export default function JoinPage() {
   return (
@@ -102,9 +102,7 @@ function WebLanding({ code }: { code: string }) {
         <li>Vuelve a tocar el enlace de la invitación: se abrirá en la app.</li>
         <li>Crea tu cuenta y pide entrar al club.</li>
       </ol>
-      <a href={APK_URL} className="block">
-        <Button className="w-full">Descargar la app</Button>
-      </a>
+      <DownloadAppButton />
       <a href={openInApp} className="block">
         <Button variant="secondary" className="w-full">
           Ya la tengo: abrir en la app

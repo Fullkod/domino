@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState, useSyncExternalStore, type FormEvent } from 'react'
+import { DownloadAppButton } from '@/features/app-update/components/DownloadAppButton'
 import { afterSignInPath, readPendingInvite } from '@/features/invites/lib/invite'
 import { PasswordInput } from '@/shared/components/PasswordInput'
 import { Button, Field, Input, Notice } from '@/shared/components/ui'
@@ -120,6 +121,7 @@ export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
             {isSignup ? 'Entra' : 'Regístrate'}
           </Link>
         </p>
+        <DownloadAppButton />
         {!isSignup && (
           <p className="text-center text-xs">
             <Link href="/terminos/" className="text-neutral-500 underline">

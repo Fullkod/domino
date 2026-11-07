@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect } from 'react'
+import { DownloadAppButton } from '@/features/app-update/components/DownloadAppButton'
 import { Spinner } from '@/shared/components/ui'
 import { BRAND } from '@/shared/constants/brand'
 import { useSession } from '@/shared/hooks/session'
@@ -46,6 +47,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
           ))}
         </nav>
       </header>
+      <DownloadAppButton variant="banner" />
       {profile?.status === 'suspended' && (
         <p className="bg-red-950 px-4 py-2 text-center text-sm text-red-200">Tu cuenta está suspendida.</p>
       )}

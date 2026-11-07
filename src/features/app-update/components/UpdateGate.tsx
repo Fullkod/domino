@@ -6,6 +6,7 @@ import { useEffect, useState, type ReactNode } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { BRAND } from '@/shared/constants/brand'
 import { compareVersions } from '@/shared/lib/version'
+import { LATEST_URL } from '../lib/apk'
 
 // APK updates (BUSINESS_LOGIC §7). The GitHub Action publishes the latest APK and
 // `latest.json` to the public `apk` bucket; the installed app compares its own versionCode
@@ -20,7 +21,6 @@ interface Latest {
 
 type State = { kind: 'ok' } | { kind: 'available'; latest: Latest } | { kind: 'required'; latest: Latest | null }
 
-const LATEST_URL = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/apk/latest.json`
 
 async function check(): Promise<State> {
   const [info, latest, settings] = await Promise.all([
