@@ -12,9 +12,12 @@ Sustituye a `2026-11-06-estado-arranque.md`. Detalle por fase en `.titan/plans/p
   generados en `src/shared/types/database.ts` (`supabase gen types typescript --project-id …`).
 - **Verificado**: prueba E2E real (4 jugadores, partida de 8 manos, liquidación, cuadre, limpieza). Script
   reutilizable fuera del repo; patrón descrito en el PRP.
-- **Falta**: QA visual, `npx cap add android` y APK; cambiar `appId` (sigue `com.fullkod.domino`) **antes del primer
-  APK**; resolver los turnos vencidos sin clientes (pg_cron); dar el rol `platform` al usuario del operador (SQL
-  `update profiles set role='platform'`).
+- **APK (2026-11-07)**: `android/` generado, `appId` neutro `com.dominoclubes.app` (sustituye a `com.fullkod.domino`;
+  no cambiarlo más: obliga a reinstalar), icono provisional en `assets/`. Firma de release: clave fuera del repo
+  (`~/.android-keys/domino/`), leída de `android/keystore.properties` (ignorado); ruta y contraseña en Tasknic →
+  «Firma del APK». `npm run apk:release`. Probado en BlueStacks (Android 9): `.titan/qa/2026-11-07-apk/report.md`.
+- **Falta**: probar en un móvil físico con Android 15+; nombre, marca e icono definitivos; turnos vencidos sin
+  clientes (pg_cron); dar el rol `platform` al usuario del operador (SQL `update profiles set role='platform'`).
 - **QA con Playwright (2026-11-07): 41/41**, informe en `.titan/qa/2026-11-07-flujo-completo/report.md`.
 - **La base tiene datos de prueba**: superadmin (`platform`), dueño de club, 4 jugadores y el «Club de Prueba».
   Contraseñas **solo** en Tasknic, proyecto «Dominó» → Espacio → nota «Cuentas de prueba». Borrarlas antes del piloto.

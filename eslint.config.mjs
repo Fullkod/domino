@@ -5,7 +5,7 @@ import { fixupConfigRules } from '@eslint/compat'
 const config = [
   // Some bundled React/import rules still use the older context API.
   ...fixupConfigRules([...nextVitals, ...nextTypescript]),
-  { ignores: ['.next/**', 'out/**', 'next-env.d.ts'] },
+  { ignores: ['.next/**', 'out/**', 'android/**', 'next-env.d.ts'] },
 ]
 
 export default config

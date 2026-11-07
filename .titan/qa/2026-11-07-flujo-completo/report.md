@@ -34,8 +34,9 @@ Espacio de Tasknic del proyecto «Dominó», en la nota «Cuentas de prueba». A
 | 19 | Caja del club con el informe de 30 días | `24-admin-caja.png` |
 | 20 | Plataforma: cuadre correcto tras jugar; un jugador no puede abrir el panel del club | `25-plataforma-cuadre.png` |
 
-Estado final comprobado en BD: tesorería 16 025 (20 000 − 4 000 + 20 + 5), saldos 850 / 1 135 / 900 / 1 090 y
-`chip_audit()` sin problemas.
+Estado final comprobado en BD: tesorería 16 025 (20 000 − 4 000 + 20 + 5), saldos tras las dos partidas
+895 / 1 085 / 900 / 1 090 (Uno a Cuatro) y `chip_audit()` sin problemas. (Corregido el 2026-11-07: antes ponía
+850 / 1 135, que eran los saldos tras la primera partida.)
 
 ## Fallos encontrados y corregidos
 

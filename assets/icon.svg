@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <!-- Placeholder icon until the operator defines a brand: a generic 3|5 domino tile -->
+  <rect width="1024" height="1024" fill="#065f46"/>
+  <g transform="rotate(-20 512 512)">
+    <rect x="352" y="182" width="320" height="660" rx="56" fill="#fafaf9"/>
+    <rect x="382" y="506" width="260" height="12" rx="6" fill="#1c1917"/>
+    <g fill="#1c1917">
+      <circle cx="432" cy="262" r="30"/><circle cx="512" cy="344" r="30"/><circle cx="592" cy="426" r="30"/>
+      <circle cx="432" cy="598" r="30"/><circle cx="592" cy="598" r="30"/><circle cx="512" cy="680" r="30"/>
+      <circle cx="432" cy="762" r="30"/><circle cx="592" cy="762" r="30"/>
+    </g>
+  </g>
+</svg>

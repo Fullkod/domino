@@ -10,7 +10,10 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "cap:sync": "npm run build && npx cap sync android",
-    "cap:android": "npx cap open android"
+    "cap:android": "npx cap open android",
+    "apk:debug": "npm run cap:sync && node scripts/android-gradle.mjs assembleDebug",
+    "apk:release": "npm run cap:sync && node scripts/android-gradle.mjs assembleRelease",
+    "assets:icons": "capacitor-assets generate --android --iconBackgroundColor \"#065f46\" --splashBackgroundColor \"#0a0a0a\" --splashBackgroundColorDark \"#0a0a0a\""
   },
   "dependencies": {
     "@capacitor/android": "^8.0.1",
@@ -23,6 +26,7 @@
     "zod": "^4.3.5"
   },
   "devDependencies": {
+    "@capacitor/assets": "^4.0.0",
     "@capacitor/cli": "^8.0.1",
     "@eslint/compat": "^2.1.1",
     "@types/node": "^22.0.0",

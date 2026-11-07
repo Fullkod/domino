@@ -199,15 +199,26 @@ Cada fase empieza revisando el estado real del código. Las fases 1–3 se puede
 | 6 Lobby y partida | Hecha (web) | `/club` (mesas, sentarse), `/mesa` (sala de espera, inicio automático, tablero, turnos, pasar, resultado). Edge Function `game-action` desplegada. E2E real con 4 usuarios: partida de 8 manos, turno vencido, jugada fuera de turno rechazada, cuadre 0, limpieza total |
 
 | QA web | **41/41** | Playwright, móvil Pixel 7, contra Supabase online: `.titan/qa/2026-11-07-flujo-completo/report.md`. 3 fallos de UI encontrados y corregidos |
+| APK | **Generado, firmado y probado** | appId neutro `com.dominoclubes.app`, icono provisional (ficha 3-5), JDK 21 + SDK 36 sin Android Studio. Clave de release fuera del repo (datos en Tasknic). `npm run apk:release`. QA en BlueStacks (Android 9): login, lobby, Realtime, partida por toques, abandono por 3 turnos, actualización encima conservando sesión: `.titan/qa/2026-11-07-apk/report.md` |
 
 **Pendiente**
-- Prueba en el APK. Falta `npx cap add android`; nunca se ha generado la carpeta `android/`.
-- `capacitor.config.ts` sigue con `appId: com.fullkod.domino`: **hay que cambiarlo antes del primer APK** (marca blanca; el `appId` no se puede cambiar después sin perder las actualizaciones).
+- APK: falta probarlo en un móvil físico con Android 15+ y, cuando haya marca, cambiar nombre e icono (`com.dominoclubes.app` se queda: cambiarlo obliga a reinstalar).
 - Turnos vencidos: los resuelve el `tick` que mandan los clientes de la mesa. Si se desconectan todos, la mesa queda parada hasta que alguien vuelva. Mejora: tarea programada (pg_cron + llamada a la función).
 - Fase 7 (informes de plataforma más completos) y fase 8 (marca blanca, traspaso de cuentas, APK firmado).
 - Bloqueo para el piloto: la respuesta legal (D3).
 
 ### Aprendizajes
+
+### 2026-11-07: npm en Windows no encuentra `gradlew`
+- **Error**: `cd android && gradlew assembleRelease` desde un script de npm da «'gradlew' is not recognized» (cmd de esta
+  máquina no busca ejecutables en la carpeta actual).
+- **Fix**: `scripts/android-gradle.mjs` lanza el wrapper por ruta absoluta; `npm run apk:debug` / `apk:release` lo usan.
+- **Aplicar en**: cualquier script que llame a un `.bat` local.
+
+### 2026-11-07: barra de estado blanca en el APK
+- **Error**: en Android 9 la barra de estado salía blanca con iconos blancos (tema DayNight claro).
+- **Fix**: `colors.xml` (`appBackground` #0a0a0a) y `statusBarColor`/`navigationBarColor`/`windowBackground` en `styles.xml`.
+- **Aplicar en**: si cambia el color de fondo de la web, cambiarlo también ahí.
 
 ### 2026-11-07: el lint de React rechaza `load()` dentro de `useEffect`
 - **Error**: `react-hooks/set-state-in-effect` al llamar a una función que hace `setState` desde un efecto.

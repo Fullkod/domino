@@ -84,7 +84,9 @@ npm run lint
 npm run typecheck
 npm run build        # export estático a out/
 npm run cap:sync     # build + copiar a android/
-npm run cap:android  # abrir Android Studio para generar el APK
+npm run apk:release  # build + sync + APK firmado (android/keystore.properties, clave fuera del repo)
+npm run apk:debug    # igual, APK de depuración
+npm run cap:android  # abrir Android Studio (opcional)
 ```
 
 ## Auto-blindaje

@@ -27,13 +27,19 @@ npm test
 
 ## APK
 
+Requisitos: JDK 21 (`JAVA_HOME`) y Android SDK con la plataforma 36 (`ANDROID_HOME`). No hace falta Android Studio.
+
 ```
-npm run cap:sync      # build estático + copia a android/
-npm run cap:android   # abre Android Studio → Build → Generate Signed APK
+npm run apk:debug     # build estático + cap sync + APK de depuración
+npm run apk:release   # igual, firmado: android/app/build/outputs/apk/release/app-release.apk
+npm run assets:icons  # regenera iconos y splash desde assets/ (icono provisional hasta tener marca)
+npm run cap:android   # abre Android Studio, si se prefiere
 ```
 
-Firma siempre con la misma clave. Guárdala fuera del repo y con copia de seguridad: sin ella no se pueden
-publicar actualizaciones.
+La firma de release se lee de `android/keystore.properties` (ignorado por git: `storeFile`, `storePassword`,
+`keyAlias`, `keyPassword`). La clave vive fuera del repo; dónde está y su contraseña, en el Espacio de Tasknic del
+proyecto. Firma siempre con la misma clave y el mismo `appId` (`com.dominoclubes.app`): si cambia cualquiera de los
+dos, el APK nuevo no se instala encima del anterior.
 
 ---
 
