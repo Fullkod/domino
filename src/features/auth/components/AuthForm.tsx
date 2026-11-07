@@ -79,6 +79,20 @@ export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
         {formError && <Notice>{formError}</Notice>}
         {info && <Notice tone="success">{info}</Notice>}
 
+        {isSignup && (
+          <p className="text-xs text-neutral-500">
+            Al crear la cuenta confirmas que tienes 18 años o más y aceptas los{' '}
+            <Link href="/terminos/" className="text-emerald-400 underline">
+              términos y condiciones
+            </Link>{' '}
+            y la{' '}
+            <Link href="/terminos/#privacidad" className="text-emerald-400 underline">
+              privacidad
+            </Link>
+            .
+          </p>
+        )}
+
         <Button type="submit" className="w-full" disabled={busy}>
           {busy ? 'Un momento…' : isSignup ? 'Crear cuenta' : 'Entrar'}
         </Button>
@@ -89,6 +103,13 @@ export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
             {isSignup ? 'Entra' : 'Regístrate'}
           </Link>
         </p>
+        {!isSignup && (
+          <p className="text-center text-xs">
+            <Link href="/terminos/" className="text-neutral-500 underline">
+              Términos y condiciones
+            </Link>
+          </p>
+        )}
       </form>
     </div>
   )

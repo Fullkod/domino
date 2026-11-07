@@ -15,6 +15,7 @@ Read relevant entries only. Store decisions with dates and evidence. Lógica de 
 - [2026-11-07 — Riesgo legal art. 281; se mantiene el bote hasta la respuesta de la abogada](project/2026-11-07-riesgo-legal-art-281.md)
 - [2026-11-07 — Estado de la implementación: fases 1–6 hechas, APK firmado, qué falta](project/2026-11-07-estado-implementacion.md)
 - [2026-11-07 — Proyecto Supabase `domino` (ref, región, MCP por proyecto)](project/2026-11-07-proyecto-supabase.md)
+- [2026-11-07 — «Contactar» en vez de recargar, operador ↔ clubes de terceros, APK por GitHub Action, Supervisión, términos](project/2026-11-07-contactos-distribucion-supervision.md)
 
 ## References
 - [2026-11-07 — Domino Real, la app de referencia del operador (modelo de clubes)](reference/2026-11-07-domino-real-referencia.md)

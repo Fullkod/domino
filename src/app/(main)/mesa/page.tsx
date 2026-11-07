@@ -5,6 +5,8 @@ import type { HandState, Move, Seat, Side, Tile } from '@engine/types'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { getMyClub, type MyClub } from '@/features/clubs/services/clubs-service'
+import { ContactSheet } from '@/features/contacts/components/ContactSheet'
 import { DominoTile, HiddenTiles } from '@/features/tables/components/DominoTile'
 import {
   gameAction,
@@ -38,9 +40,11 @@ export default function MesaPage() {
 function Mesa() {
   const tableId = useSearchParams().get('id') ?? ''
   const router = useRouter()
-  const { userId } = useCurrentUser()
+  const { userId, profile } = useCurrentUser()
   const [view, setView] = useState<TableView | null | undefined>(undefined)
   const [error, setError] = useState<string | null>(null)
+  const [club, setClub] = useState<MyClub | null>(null)
+  const [contactOpen, setContactOpen] = useState(false)
   const [busy, setBusy] = useState(false)
   const [version, setVersion] = useState(0)
   const load = useCallback(() => setVersion((v) => v + 1), [])
@@ -67,6 +71,21 @@ function Mesa() {
     }
   }, [tableId, userId, version])
 
+  // Balance for the waiting room: refreshed with every reload while no game is running.
+  const clubId = view?.table.club_id ?? null
+  const inGame = view?.game?.status === 'playing'
+  useEffect(() => {
+    if (!clubId || inGame) return
+    let current = true
+    getMyClub(clubId, userId).then(
+      (mine) => current && setClub(mine),
+      () => undefined,
+    )
+    return () => {
+      current = false
+    }
+  }, [clubId, inGame, userId, version])
+
   const gameId = view?.game?.id ?? null
   useEffect(() => subscribeTable(tableId, gameId, load), [tableId, gameId, load])
 
@@ -78,6 +97,10 @@ function Mesa() {
         await fn()
       } catch (err) {
         const code = err instanceof Error ? err.message : ''
+        if (errorMessage(err) === errorMessage('insufficient_chips')) {
+          setContactOpen(true)
+          return
+        }
         // The table moved on (game ended, hand ended, someone else's move landed first):
         // not an error for the player, the reload below shows the current state.
         if (!SILENT_GAME_ERRORS.has(code)) setError(GAME_ERRORS[code] ?? errorMessage(err))
@@ -133,6 +156,8 @@ function Mesa() {
           view={view}
           userId={userId}
           busy={busy}
+          balance={club?.balance ?? null}
+          onContact={() => setContactOpen(true)}
           onReady={(ready) => run(() => setReady(ready))}
           onLeave={() =>
             run(async () => {
@@ -140,6 +165,15 @@ function Mesa() {
               router.replace(`/club/?id=${view.table.club_id}`)
             })
           }
+        />
+      )}
+      {contactOpen && club && (
+        <ContactSheet
+          clubId={club.club.id}
+          title="Contactar al club"
+          reason={`No tienes fichas suficientes para la entrada de ${formatChips(view.template.entry)}. Habla con el club:`}
+          message={`Hola, soy ${profile?.display_name ?? ''} del club ${club.club.name} (código ${club.club.code}).`}
+          onClose={() => setContactOpen(false)}
         />
       )}
     </div>
@@ -154,12 +188,16 @@ function WaitingRoom({
   view,
   userId,
   busy,
+  balance,
+  onContact,
   onReady,
   onLeave,
 }: {
   view: TableView
   userId: string
   busy: boolean
+  balance: number | null
+  onContact: () => void
   onReady: (ready: boolean) => void
   onLeave: () => void
 }) {
@@ -193,9 +231,15 @@ function WaitingRoom({
       </Card>
       {me ? (
         <div className="flex gap-2">
-          <Button className="flex-1" onClick={() => onReady(!me.ready)} disabled={busy}>
-            {me.ready ? 'No estoy listo' : 'Listo'}
-          </Button>
+          {!me.ready && balance !== null && balance < view.template.entry ? (
+            <Button className="flex-1" onClick={onContact}>
+              Contactar al club
+            </Button>
+          ) : (
+            <Button className="flex-1" onClick={() => onReady(!me.ready)} disabled={busy}>
+              {me.ready ? 'No estoy listo' : 'Listo'}
+            </Button>
+          )}
           <Button variant="secondary" onClick={onLeave} disabled={busy}>
             Levantarse
           </Button>

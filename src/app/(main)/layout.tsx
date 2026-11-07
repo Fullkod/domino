@@ -22,6 +22,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   const links = [
     { href: '/clubs/', label: 'Clubes' },
     ...(profile?.role === 'platform' ? [{ href: '/platform/', label: 'Plataforma' }] : []),
+    ...(profile?.role === 'auditor' || profile?.role === 'platform' ? [{ href: '/supervision/', label: 'Supervisión' }] : []),
     { href: '/perfil/', label: 'Perfil' },
   ]
 

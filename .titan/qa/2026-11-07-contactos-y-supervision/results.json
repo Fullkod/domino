@@ -1,0 +1,77 @@
+[
+  {
+    "name": "Plataforma: añadir contacto del operador (rechaza teléfono inválido)",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Plataforma: versión mínima visible",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Plataforma: % de cargo del club y devolución de fichas",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Club: añadir contacto del club",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Club: asignar más que la tesorería → «Contactar a la plataforma»",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Jugador: mesa sin fichas suficientes → «Contactar al club»",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Jugador: una mesa que sí alcanza sigue con «Sentarse»",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "RLS: el jugador ve los contactos de su club y no los de la plataforma",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "RLS: el jugador no puede crear contactos del club",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "RLS: supervisión no ve ningún contacto",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Supervisión no puede emitir ni devolver fichas",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Un jugador no puede leer los libros de supervisión",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Supervisión: libros por club y movimientos plataforma ↔ club",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Supervisión: no ve el menú Plataforma",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Cuadre sin problemas",
+    "ok": true,
+    "detail": ""
+  }
+]

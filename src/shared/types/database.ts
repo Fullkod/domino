@@ -272,6 +272,51 @@ export type Database = {
           },
         ]
       }
+      contacts: {
+        Row: {
+          club_id: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          label: string
+          phone: string
+          sort_order: number
+        }
+        Insert: {
+          club_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          label: string
+          phone: string
+          sort_order?: number
+        }
+        Update: {
+          club_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          label?: string
+          phone?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contacts_club_id_fkey"
+            columns: ["club_id"]
+            isOneToOne: false
+            referencedRelation: "clubs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contacts_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       game_players: {
         Row: {
           consecutive_timeouts: number
@@ -762,8 +807,48 @@ export type Database = {
         Returns: number
       }
       assert_active_user: { Args: never; Returns: string }
+      assert_auditor_or_platform: { Args: never; Returns: undefined }
       assert_club_admin: { Args: { p_club: string }; Returns: string }
       assert_platform: { Args: never; Returns: string }
+      audit_books: {
+        Args: never
+        Returns: {
+          club_code: string
+          club_id: string
+          club_name: string
+          club_status: string
+          issued: number
+          platform_share: number
+          platform_share_pct: number
+          player_count: number
+          players: number
+          pots: number
+          treasury: number
+        }[]
+      }
+      audit_movements: {
+        Args: {
+          p_before?: number
+          p_club?: string
+          p_kinds?: string[]
+          p_limit?: number
+        }
+        Returns: {
+          actor_name: string
+          amount: number
+          club_id: string
+          club_name: string
+          created_at: string
+          from_kind: string
+          from_name: string
+          id: number
+          kind: string
+          note: string
+          to_kind: string
+          to_name: string
+        }[]
+      }
+      can_manage_contacts: { Args: { p_club: string }; Returns: boolean }
       cancel_game_first_hand_abandon: {
         Args: { p_game: string; p_leaver: string }
         Returns: undefined
@@ -847,6 +932,8 @@ export type Database = {
         Args: { p_game: string; p_reason: string; p_winner_team: number }
         Returns: boolean
       }
+      is_any_club_admin: { Args: never; Returns: boolean }
+      is_auditor: { Args: never; Returns: boolean }
       is_club_admin: { Args: { p_club: string }; Returns: boolean }
       is_club_member: { Args: { p_club: string }; Returns: boolean }
       is_platform: { Args: never; Returns: boolean }
@@ -877,6 +964,19 @@ export type Database = {
       platform_issue_chips: {
         Args: { p_amount: number; p_club: string; p_note?: string }
         Returns: number
+      }
+      platform_retire_chips: {
+        Args: {
+          p_amount: number
+          p_club: string
+          p_note: string
+          p_source: string
+        }
+        Returns: number
+      }
+      platform_set_club_share: {
+        Args: { p_club: string; p_share_pct: number }
+        Returns: undefined
       }
       platform_set_club_status: {
         Args: { p_club: string; p_status: string }

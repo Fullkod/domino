@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState, type FormEvent } from 'react'
 import { signOut } from '@/features/auth/services/auth-service'
@@ -61,6 +62,11 @@ function ProfileForm({ initialName }: { initialName: string }) {
       <Button variant="secondary" className="w-full" onClick={logout}>
         Cerrar sesión
       </Button>
+      <p className="text-center text-xs">
+        <Link href="/terminos/" className="text-neutral-500 underline">
+          Términos y condiciones · Privacidad
+        </Link>
+      </p>
     </div>
   )
 }

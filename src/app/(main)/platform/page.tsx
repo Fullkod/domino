@@ -6,10 +6,15 @@ import {
   createClub,
   findUserByEmail,
   issueChips,
+  getMinAppVersion,
   listAllClubs,
+  retireChips,
+  setClubShare,
   setClubStatus,
+  setMinAppVersion,
   type PlatformClub,
 } from '@/features/platform/services/platform-service'
+import { ContactsEditor } from '@/features/contacts/components/ContactsEditor'
 import { Badge, Button, Card, Field, Input, Notice, Spinner, formatChips } from '@/shared/components/ui'
 import { useCurrentUser } from '@/shared/hooks/session'
 import { errorMessage } from '@/shared/lib/errors'
@@ -73,6 +78,13 @@ export default function PlatformPage() {
 
       <NewClub act={act} />
 
+      <MinVersion act={act} />
+
+      <ContactsEditor
+        clubId={null}
+        intro="Los administradores de los clubes ven estos teléfonos cuando la tesorería de su club no alcanza."
+      />
+
       <ul className="space-y-2">
         {clubs.map((c) => (
           <li key={c.club.id}>
@@ -135,6 +147,7 @@ function NewClub({ act }: { act: Act }) {
 
 function ClubRow({ item, act }: { item: PlatformClub; act: Act }) {
   const [amount, setAmount] = useState('')
+  const [more, setMore] = useState(false)
   const { club } = item
 
   async function issue(e: FormEvent) {
@@ -159,6 +172,11 @@ function ClubRow({ item, act }: { item: PlatformClub; act: Act }) {
         <div className="text-right">
           <p className="text-xs text-neutral-500">Tesorería</p>
           <p className="font-semibold">{formatChips(item.treasury)}</p>
+          {Number(club.platform_share_pct) > 0 && (
+            <p className="text-xs text-neutral-500">
+              Para la plataforma: {formatChips(item.platformShare)} ({club.platform_share_pct} % del cargo)
+            </p>
+          )}
         </div>
       </div>
       <form onSubmit={issue} className="flex gap-2">
@@ -167,6 +185,10 @@ function ClubRow({ item, act }: { item: PlatformClub; act: Act }) {
           Emitir
         </Button>
       </form>
+      <button type="button" className="text-sm text-neutral-400 underline" onClick={() => setMore(!more)}>
+        {more ? 'Ocultar opciones' : 'Más opciones'}
+      </button>
+      {more && <ClubTerms item={item} act={act} />}
       <Button
         variant={club.status === 'active' ? 'danger' : 'secondary'}
         onClick={() =>
@@ -178,6 +200,113 @@ function ClubRow({ item, act }: { item: PlatformClub; act: Act }) {
       >
         {club.status === 'active' ? 'Suspender club' : 'Reactivar club'}
       </Button>
+    </Card>
+  )
+}
+
+/** Settlement with a club outside the app: return chips to the platform and the rake share. */
+function ClubTerms({ item, act }: { item: PlatformClub; act: Act }) {
+  const { club } = item
+  const [source, setSource] = useState<'treasury' | 'platform'>('treasury')
+  const [amount, setAmount] = useState('')
+  const [note, setNote] = useState('')
+  const [share, setShare] = useState(String(club.platform_share_pct))
+
+  async function retire(e: FormEvent) {
+    e.preventDefault()
+    const value = Number.parseInt(amount, 10)
+    if (!(value > 0) || !note.trim()) return
+    const ok = await act(() => retireChips(club.id, source, value, note.trim()), `${formatChips(value)} fichas devueltas a la plataforma.`)
+    if (ok) {
+      setAmount('')
+      setNote('')
+    }
+  }
+
+  async function saveShare(e: FormEvent) {
+    e.preventDefault()
+    const value = Number.parseFloat(share.replace(',', '.'))
+    if (!(value >= 0 && value <= 100)) return
+    await act(() => setClubShare(club.id, value), 'Parte de la plataforma actualizada.')
+  }
+
+  return (
+    <div className="space-y-4 border-t border-neutral-800 pt-3">
+      <form onSubmit={retire} className="space-y-2">
+        <h3 className="text-sm font-semibold">Devolver fichas a la plataforma</h3>
+        <p className="text-xs text-neutral-500">
+          Cuando el club devuelve fichas o liquida la parte de la plataforma (el acuerdo es fuera de la app).
+        </p>
+        <div className="grid grid-cols-2 gap-1">
+          {(
+            [
+              ['treasury', `Tesorería (${formatChips(item.treasury)})`],
+              ['platform', `Parte plataforma (${formatChips(item.platformShare)})`],
+            ] as const
+          ).map(([value, label]) => (
+            <button
+              type="button"
+              key={value}
+              onClick={() => setSource(value)}
+              className={`rounded-lg py-1.5 text-xs ${source === value ? 'bg-emerald-500 text-neutral-950' : 'bg-neutral-800'}`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        <Input inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value.replace(/\D/g, ''))} placeholder="Fichas" />
+        <Input value={note} onChange={(e) => setNote(e.target.value)} placeholder="Motivo (obligatorio)" maxLength={200} />
+        <Button type="submit" variant="secondary" disabled={!amount || !note.trim()}>
+          Devolver
+        </Button>
+      </form>
+      <form onSubmit={saveShare} className="space-y-2">
+        <Field
+          label="Parte de la plataforma en el cargo (%)"
+          hint="0 en los clubes propios. Para clubes de otros dueños: qué % de cada cargo queda para la plataforma. Se aplica a las partidas nuevas."
+        >
+          <Input inputMode="decimal" value={share} onChange={(e) => setShare(e.target.value)} />
+        </Field>
+        <Button type="submit" variant="secondary">
+          Guardar
+        </Button>
+      </form>
+    </div>
+  )
+}
+
+/** Below this version the APK blocks and asks to update (the latest APK is published by CI). */
+function MinVersion({ act }: { act: Act }) {
+  const [value, setValue] = useState<string | null>(null)
+
+  useEffect(() => {
+    let current = true
+    getMinAppVersion().then(
+      (v) => current && setValue(v),
+      () => current && setValue(''),
+    )
+    return () => {
+      current = false
+    }
+  }, [])
+
+  async function save(e: FormEvent) {
+    e.preventDefault()
+    if (!value || !/^\d+(\.\d+){0,2}$/.test(value.trim())) return
+    await act(() => setMinAppVersion(value.trim()), 'Versión mínima guardada.')
+  }
+
+  if (value === null) return null
+  return (
+    <Card>
+      <form onSubmit={save} className="space-y-2">
+        <Field label="Versión mínima de la app" hint="Las apps más viejas quedan bloqueadas hasta actualizar. Ej.: 0.1.5">
+          <Input value={value} onChange={(e) => setValue(e.target.value)} inputMode="decimal" />
+        </Field>
+        <Button type="submit" variant="secondary">
+          Guardar
+        </Button>
+      </form>
     </Card>
   )
 }

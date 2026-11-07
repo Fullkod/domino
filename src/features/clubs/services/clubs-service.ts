@@ -194,6 +194,7 @@ export const STATUS_LABEL: Record<MemberStatus, string> = {
 }
 export const MOVEMENT_LABEL: Record<string, string> = {
   issue: 'Emisión',
+  retire: 'Devolución a la plataforma',
   assign: 'Asignación',
   withdraw: 'Retirada',
   buy_in: 'Entrada a mesa',

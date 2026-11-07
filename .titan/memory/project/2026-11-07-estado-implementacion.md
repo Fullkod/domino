@@ -16,6 +16,9 @@ Sustituye a `2026-11-06-estado-arranque.md`. Detalle por fase en `.titan/plans/p
   no cambiarlo más: obliga a reinstalar), icono provisional en `assets/`. Firma de release: clave fuera del repo
   (`~/.android-keys/domino/`), leída de `android/keystore.properties` (ignorado); ruta y contraseña en Tasknic →
   «Firma del APK». `npm run apk:release`. Probado en BlueStacks (Android 9): `.titan/qa/2026-11-07-apk/report.md`.
+- **2026-11-07 (tarde)**: migraciones `150000`–`170000` aplicadas (contactos, `retire`, parte de la plataforma, bucket
+  `apk`, rol `auditor`, `audit_books`/`audit_movements`). QA 15/15 en `.titan/qa/2026-11-07-contactos-y-supervision/`.
+  Ver `2026-11-07-contactos-distribucion-supervision.md`.
 - **Falta**: probar en un móvil físico con Android 15+; nombre, marca e icono definitivos; turnos vencidos sin
   clientes (pg_cron); dar el rol `platform` al usuario del operador (SQL `update profiles set role='platform'`).
 - **QA con Playwright (2026-11-07): 41/41**, informe en `.titan/qa/2026-11-07-flujo-completo/report.md`.

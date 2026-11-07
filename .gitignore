@@ -74,3 +74,6 @@ android/.gradle/
 
 # TypeScript incremental build
 *.tsbuildinfo
+
+# Private, never committed: legal drafts and notes (e.g. the consultation for the lawyer)
+/private/

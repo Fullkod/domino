@@ -1,0 +1,131 @@
+# Builds the signed release APK and publishes it to Supabase Storage (public bucket `apk`):
+#   apk/domino.apk   always the latest version (overwritten: old versions never pile up)
+#   apk/latest.json  { versionCode, versionName, url, publishedAt } read by the app (UpdateGate)
+# The versionCode is the published one + 1, so it keeps growing even if the repository moves
+# (BUSINESS_LOGIC §1.1 D1). Run it from Actions → "APK release" → Run workflow.
+#
+# Repository variables: NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY (public values).
+# Repository secrets:   ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS,
+#                       ANDROID_KEY_PASSWORD, SUPABASE_SERVICE_ROLE_KEY (upload + min version).
+name: APK release
+
+on:
+  workflow_dispatch:
+    inputs:
+      force_update:
+        description: 'Obligar a actualizar (las versiones anteriores quedan bloqueadas)'
+        type: boolean
+        default: false
+
+concurrency:
+  group: apk-release
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Check configuration
+        run: |
+          for name in NEXT_PUBLIC_SUPABASE_URL NEXT_PUBLIC_SUPABASE_ANON_KEY SUPABASE_SERVICE_ROLE_KEY; do
+            if [ -z "${!name}" ]; then echo "::error::Missing $name"; exit 1; fi
+          done
+
+      - name: Next version
+        id: version
+        run: |
+          current=$(curl -fsS "$NEXT_PUBLIC_SUPABASE_URL/storage/v1/object/public/apk/latest.json?t=$(date +%s)" \
+            | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{try{console.log(JSON.parse(s).versionCode||0)}catch{console.log(0)}})" \
+            || echo 0)
+          code=$(( current + 1 ))
+          # Version 1 was the first local build; CI always starts above it.
+          if [ "$code" -lt 2 ]; then code=2; fi
+          base=$(node -p "require('./package.json').version.split('.').slice(0,2).join('.')")
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          echo "name=$base.$code" >> "$GITHUB_OUTPUT"
+          echo "Publishing $base.$code (versionCode $code)"
+
+      - run: npm ci
+
+      - name: Build web and sync Android
+        run: npm run cap:sync
+
+      - name: Signing key
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
+          {
+            echo "storeFile=$RUNNER_TEMP/release.jks"
+            echo "storePassword=$KEYSTORE_PASSWORD"
+            echo "keyAlias=$KEY_ALIAS"
+            echo "keyPassword=$KEY_PASSWORD"
+          } > android/keystore.properties
+
+      - name: Build signed APK
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon assembleRelease \
+            -PversionCode=${{ steps.version.outputs.code }} -PversionName=${{ steps.version.outputs.name }}
+
+      - name: Verify signature
+        run: |
+          apk=android/app/build/outputs/apk/release/app-release.apk
+          apksigner=$(ls "$ANDROID_HOME"/build-tools/*/apksigner | sort -V | tail -1)
+          "$apksigner" verify --print-certs "$apk" | grep -i "SHA-256"
+
+      - name: Publish to Supabase Storage
+        run: |
+          base="$NEXT_PUBLIC_SUPABASE_URL/storage/v1/object"
+          auth=(-H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" -H "apikey: $SUPABASE_SERVICE_ROLE_KEY" -H "x-upsert: true" -H "cache-control: max-age=60")
+          curl -fsS -X POST "$base/apk/domino.apk" "${auth[@]}" \
+            -H "Content-Type: application/vnd.android.package-archive" \
+            --data-binary @android/app/build/outputs/apk/release/app-release.apk
+          node -e "console.log(JSON.stringify({versionCode:${{ steps.version.outputs.code }},versionName:'${{ steps.version.outputs.name }}',url:process.env.NEXT_PUBLIC_SUPABASE_URL+'/storage/v1/object/public/apk/domino.apk',publishedAt:new Date().toISOString()}))" > latest.json
+          cat latest.json
+          # latest.json goes last: the app only learns about the version once the APK is there.
+          curl -fsS -X POST "$base/apk/latest.json" "${auth[@]}" -H "Content-Type: application/json" --data-binary @latest.json
+
+      - name: Force update
+        if: ${{ inputs.force_update }}
+        run: |
+          curl -fsS -X PATCH "$NEXT_PUBLIC_SUPABASE_URL/rest/v1/app_settings?id=eq.true" \
+            -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" -H "apikey: $SUPABASE_SERVICE_ROLE_KEY" \
+            -H "Content-Type: application/json" -d '{"min_app_version":"${{ steps.version.outputs.name }}"}'
+
+      - name: Summary
+        run: |
+          {
+            echo "### APK ${{ steps.version.outputs.name }} publicado"
+            echo ""
+            echo "Descarga: $NEXT_PUBLIC_SUPABASE_URL/storage/v1/object/public/apk/domino.apk"
+            echo ""
+            echo "Actualización obligatoria: ${{ inputs.force_update }}"
+          } >> "$GITHUB_STEP_SUMMARY"

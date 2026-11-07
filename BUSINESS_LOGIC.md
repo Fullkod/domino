@@ -39,7 +39,8 @@ La app es **marca blanca**: el APK y la web pública no mencionan a Fullkod (§8
 | Rol | Quién | Qué puede hacer |
 |-----|-------|-----------------|
 | `player` | Cualquiera que se registra | Unirse a clubes, jugar, ver sus saldos y movimientos |
-| `platform` | El dueño de la plataforma (operador según D1) | Crear y suspender clubes, emitir fichas a la tesorería de un club, ver informes globales, configuración global. No toca saldos de jugadores directamente |
+| `platform` | El dueño de la plataforma (operador según D1) | Crear y suspender clubes, emitir fichas a la tesorería de un club y retirarlas, fijar su parte del cargo por club, sus contactos, la versión mínima de la app, ver informes globales. No toca saldos de jugadores directamente |
+| `auditor` | Supervisión (decidido 2026-11-07) | **Solo lectura** de los libros de fichas de la plataforma y de todos los clubes (saldos, movimientos, cuadre) en `/supervision`. No ve contactos, teléfonos, correos ni manos, y no puede hacer ninguna acción. Se asigna por SQL |
 
 ### 2.2 Dentro de un club (`club_members.role`)
 
@@ -70,6 +71,7 @@ club. Los saldos nunca quedan negativos y la suma de un club siempre cuadra con 
 | Tipo | De → a | Quién |
 |------|--------|-------|
 | `issue` | (emisión) → tesorería | `platform` |
+| `retire` | tesorería o parte de la plataforma → (emisión) | `platform`, con nota obligatoria |
 | `assign` | tesorería → jugador | admin del club |
 | `withdraw` | jugador → tesorería | admin del club |
 | `buy_in` | jugador → bote | servidor, al empezar la partida |
@@ -81,7 +83,31 @@ club. Los saldos nunca quedan negativos y la suma de un club siempre cuadra con 
 Los errores se corrigen con un movimiento contrario; nada se edita ni se borra. Cada movimiento guarda quién, cuándo y
 una nota.
 
-**Cuadre** (debe dar siempre 0 diferencias): Σ emitido al club = tesorería + Σ saldos de jugadores + Σ botes abiertos.
+**Cuadre** (debe dar siempre 0 diferencias): Σ emitido al club − Σ retirado = tesorería + Σ saldos de jugadores +
+Σ botes abiertos + parte de la plataforma.
+
+### 3.3 Operador ↔ club ↔ jugador (decidido 2026-11-07)
+
+Habrá clubes del operador y **clubes de otros dueños**; el flujo es el mismo para todos. Los acuerdos económicos
+siempre ocurren **fuera de la app**: la app solo enseña a quién contactar y bloquea la acción que falta.
+
+| Paso | Quién | En la app |
+|------|-------|-----------|
+| 1. Alta del club | Operador | Plataforma → crear club con el dueño (ya registrado) |
+| 2. El club necesita fichas | Admin del club | Si la tesorería no alcanza para asignar, el botón «Confirmar» se cambia por **«Contactar a la plataforma»** (WhatsApp o llamada a los contactos del operador). Se acuerda fuera |
+| 3. Emisión | Operador | `issue` a la tesorería del club |
+| 4. El jugador necesita fichas | Jugador | Si no le alcanza la entrada, «Sentarse» o «Listo» se cambian por **«Contactar al club»** (contactos del club). Se acuerda fuera |
+| 5. Asignación / retirada | Admin del club | `assign` / `withdraw` |
+| 6. Liquidación con el operador | Operador | `retire`: el club devuelve fichas de su tesorería, o se liquida la **parte de la plataforma** acumulada |
+
+- **Contactos** (`contacts`): hasta 5 por club (los ven sus miembros activos) y hasta 5 de la plataforma (los ven los
+  admins de clubes). Nombre y teléfono con código de país; el mensaje de WhatsApp sale prellenado con el nombre,
+  el club y su código, **sin cantidades ni la palabra «comprar»**. Nunca hay un botón de «recargar» ni «comprar».
+- **Ingresos del operador por club** (ambas palancas preparadas, se usan según el acuerdo con cada dueño):
+  1. lo que cobre fuera de la app por cada emisión;
+  2. `clubs.platform_share_pct`: qué % de cada cargo de mesa va a la cuenta `platform` del club (0 en los clubes
+     propios). Se liquida fuera y se registra con `retire`.
+- El operador ve en Plataforma la tesorería y la parte acumulada de cada club; Supervisión ve todos los libros.
 
 ## 4. Mesas y partidas
 
@@ -183,7 +209,13 @@ Mesas privadas, «Cash» y jerarquía de agentes van en la fase 2, cuando se con
 - **APK** con Capacitor, firmado siempre con la **misma clave**, que pertenece al dueño según D1. Si se pierde, no se
   puede actualizar la app.
 - Descarga desde una landing con un botón al APK y los pasos para permitir «instalar apps de origen desconocido».
-- **Actualización forzada**: `app_settings.min_app_version`.
+- **Publicación**: GitHub Action `APK release` (manual). Compila y firma en GitHub (la clave va en los secretos del
+  repo) y sube a Supabase Storage, bucket público `apk`: `domino.apk` (siempre **solo la última**, se sobrescribe) y
+  `latest.json`. El `versionCode` es el publicado + 1.
+- **Aviso en la app**: al abrir y al volver a la app compara su versión con `latest.json` → franja «Hay una versión
+  nueva» con «Actualizar». Android pide confirmar la instalación (no hay instalación silenciosa fuera de Play Store).
+- **Actualización forzada**: por debajo de `app_settings.min_app_version` la app se bloquea con «Hay que actualizar».
+  Se cambia en Plataforma o marcando «Obligar a actualizar» al lanzar el Action.
 - Los paneles de club y de plataforma son la misma app (rutas `/club/...`, `/platform/...`), usables también desde
   el navegador.
 

@@ -13,6 +13,7 @@ import {
   type MyClub,
   type TableTemplate,
 } from '@/features/clubs/services/clubs-service'
+import { ContactSheet } from '@/features/contacts/components/ContactSheet'
 import { getMySeat, joinTable } from '@/features/tables/services/tables-service'
 import { Button, Card, Notice, Spinner, formatChips } from '@/shared/components/ui'
 import { useCurrentUser } from '@/shared/hooks/session'
@@ -29,7 +30,7 @@ export default function ClubPage() {
 function ClubLobby() {
   const clubId = useSearchParams().get('id') ?? ''
   const router = useRouter()
-  const { userId } = useCurrentUser()
+  const { userId, profile } = useCurrentUser()
   const [club, setClub] = useState<MyClub | null | undefined>(undefined)
   const [templates, setTemplates] = useState<TableTemplate[]>([])
   const [movements, setMovements] = useState<{ accountId: string | null; movements: ChipLedgerRow[] }>({
@@ -40,6 +41,7 @@ function ClubLobby() {
   const [filter, setFilter] = useState<'all' | 'pairs' | 'one_vs_one'>('all')
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState<string | null>(null)
+  const [contactReason, setContactReason] = useState<string | null>(null)
 
   useEffect(() => {
     let current = true
@@ -77,8 +79,10 @@ function ClubLobby() {
       const tableId = await joinTable(template.id)
       router.push(`/mesa/?id=${tableId}`)
     } catch (err) {
-      setError(errorMessage(err))
       setBusy(null)
+      // The server is the authority on balances: if it says short, offer the club's contacts.
+      if (errorMessage(err) === errorMessage('insufficient_chips')) setContactReason(SHORT_REASON)
+      else setError(errorMessage(err))
     }
   }
 
@@ -103,9 +107,16 @@ function ClubLobby() {
         )}
       </div>
 
-      <Card className="flex items-center justify-between">
-        <span className="text-sm text-neutral-400">Tus fichas</span>
-        <span className="text-2xl font-bold text-emerald-300">{formatChips(club.balance)}</span>
+      <Card className="space-y-3">
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-neutral-400">Tus fichas</span>
+          <span className="text-2xl font-bold text-emerald-300">{formatChips(club.balance)}</span>
+        </div>
+        {club.balance === 0 && (
+          <Button variant="secondary" className="w-full" onClick={() => setContactReason('No tienes fichas en este club.')}>
+            Contactar al club
+          </Button>
+        )}
       </Card>
 
       {mySeatTable && (
@@ -155,13 +166,19 @@ function ClubLobby() {
                   <span className="text-sm">
                     Entrada <span className="font-semibold">{formatChips(t.entry)}</span>
                   </span>
-                  <Button
-                    onClick={() => sit(t)}
-                    disabled={busy !== null || mySeatTable !== null || club.balance < t.entry}
-                    className="px-3 py-1.5"
-                  >
-                    {busy === t.id ? '…' : 'Sentarse'}
-                  </Button>
+                  {club.balance < t.entry ? (
+                    <Button variant="secondary" onClick={() => setContactReason(SHORT_REASON)} className="px-3 py-1.5">
+                      Contactar al club
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={() => sit(t)}
+                      disabled={busy !== null || mySeatTable !== null}
+                      className="px-3 py-1.5"
+                    >
+                      {busy === t.id ? '…' : 'Sentarse'}
+                    </Button>
+                  )}
                 </div>
               </Card>
             </li>
@@ -181,9 +198,21 @@ function ClubLobby() {
           </ul>
         )}
       </Card>
+
+      {contactReason && (
+        <ContactSheet
+          clubId={clubId}
+          title="Contactar al club"
+          reason={contactReason}
+          message={`Hola, soy ${profile?.display_name ?? ''} del club ${club.club.name} (código ${club.club.code}).`}
+          onClose={() => setContactReason(null)}
+        />
+      )}
     </div>
   )
 }
+
+const SHORT_REASON = 'No tienes fichas suficientes para esta mesa. Habla con el club:'
 
 function MovementRow({ movement, incoming }: { movement: ChipLedgerRow; incoming: boolean }) {
   return (

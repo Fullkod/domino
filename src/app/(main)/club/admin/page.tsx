@@ -27,11 +27,13 @@ import {
   type TableTemplate,
   type TemplateInput,
 } from '@/features/clubs/services/clubs-service'
+import { ContactSheet } from '@/features/contacts/components/ContactSheet'
+import { ContactsEditor } from '@/features/contacts/components/ContactsEditor'
 import { Badge, Button, Card, Field, Input, Notice, Select, Spinner, formatChips } from '@/shared/components/ui'
 import { useCurrentUser } from '@/shared/hooks/session'
 import { errorMessage } from '@/shared/lib/errors'
 
-type Tab = 'requests' | 'members' | 'tables' | 'treasury'
+type Tab = 'requests' | 'members' | 'tables' | 'treasury' | 'contacts'
 
 interface AdminData {
   club: MyClub
@@ -52,7 +54,8 @@ export default function ClubAdminPage() {
 
 function ClubAdmin() {
   const clubId = useSearchParams().get('id') ?? ''
-  const { userId } = useCurrentUser()
+  const { userId, profile } = useCurrentUser()
+  const [platformContact, setPlatformContact] = useState<string | null>(null)
   const [data, setData] = useState<AdminData | null | undefined>(undefined)
   const [tab, setTab] = useState<Tab>('requests')
   const [message, setMessage] = useState<{ tone: 'error' | 'success'; text: string } | null>(null)
@@ -132,9 +135,16 @@ function ClubAdmin() {
         </Link>
       </div>
 
-      <Card className="flex items-center justify-between">
-        <span className="text-sm text-neutral-400">Fichas del club (tesorería)</span>
-        <span className="text-2xl font-bold">{formatChips(data.treasury)}</span>
+      <Card className="space-y-3">
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-neutral-400">Fichas del club (tesorería)</span>
+          <span className="text-2xl font-bold">{formatChips(data.treasury)}</span>
+        </div>
+        {data.treasury === 0 && (
+          <Button variant="secondary" className="w-full" onClick={() => setPlatformContact('La tesorería del club está vacía.')}>
+            Contactar a la plataforma
+          </Button>
+        )}
       </Card>
 
       <div className="flex gap-1 overflow-x-auto">
@@ -144,6 +154,7 @@ function ClubAdmin() {
             ['members', 'Miembros'],
             ['tables', 'Mesas'],
             ['treasury', 'Caja'],
+            ['contacts', 'Contacto'],
           ] as const
         ).map(([value, label]) => (
           <button
@@ -170,16 +181,41 @@ function ClubAdmin() {
         />
       )}
       {tab === 'members' && (
-        <Members members={data.members.filter((m) => m.status !== 'pending')} clubId={clubId} userId={userId} isOwner={isOwner} act={act} />
+        <Members
+          members={data.members.filter((m) => m.status !== 'pending')}
+          clubId={clubId}
+          userId={userId}
+          isOwner={isOwner}
+          treasury={data.treasury}
+          onShort={() => setPlatformContact(PLATFORM_SHORT)}
+          act={act}
+        />
       )}
       {tab === 'tables' && <Templates templates={data.templates} clubId={clubId} act={act} />}
       {tab === 'treasury' && <Treasury data={data} clubId={clubId} isOwner={isOwner} act={act} />}
+      {tab === 'contacts' && (
+        <ContactsEditor
+          clubId={clubId}
+          intro="Los jugadores ven estos teléfonos cuando no tienen fichas suficientes para jugar. Ponlos con el código del país."
+        />
+      )}
       </fieldset>
+      {platformContact && (
+        <ContactSheet
+          clubId={null}
+          title="Contactar a la plataforma"
+          reason={platformContact}
+          message={`Hola, soy ${profile?.display_name ?? ''}, del club ${data.club.club.name} (código ${data.club.club.code}).`}
+          onClose={() => setPlatformContact(null)}
+        />
+      )}
     </div>
   )
 }
 
 type Act = (fn: () => Promise<unknown>, success: string) => Promise<boolean>
+
+const PLATFORM_SHORT = 'La tesorería del club no tiene fichas suficientes. Habla con la plataforma:'
 
 function Requests({ pending, onReview }: { pending: MemberRow[]; onReview: (m: MemberRow, approve: boolean) => void }) {
   if (pending.length === 0) return <Notice tone="info">No hay solicitudes pendientes.</Notice>
@@ -210,12 +246,16 @@ function Members({
   clubId,
   userId,
   isOwner,
+  treasury,
+  onShort,
   act,
 }: {
   members: MemberRow[]
   clubId: string
   userId: string
   isOwner: boolean
+  treasury: number
+  onShort: () => void
   act: Act
 }) {
   const [open, setOpen] = useState<string | null>(null)
@@ -242,7 +282,15 @@ function Members({
                 <span className="font-semibold text-emerald-300">{formatChips(m.balance)}</span>
               </button>
               {open === m.userId && (
-                <MemberActions member={m} clubId={clubId} self={m.userId === userId} isOwner={isOwner} act={act} />
+                <MemberActions
+                  member={m}
+                  clubId={clubId}
+                  self={m.userId === userId}
+                  isOwner={isOwner}
+                  treasury={treasury}
+                  onShort={onShort}
+                  act={act}
+                />
               )}
             </Card>
           </li>
@@ -257,12 +305,16 @@ function MemberActions({
   clubId,
   self,
   isOwner,
+  treasury,
+  onShort,
   act,
 }: {
   member: MemberRow
   clubId: string
   self: boolean
   isOwner: boolean
+  treasury: number
+  onShort: () => void
   act: Act
 }) {
   const [action, setAction] = useState<'assign' | 'withdraw' | 'adjust'>('assign')
@@ -280,6 +332,10 @@ function MemberActions({
       setNote('')
     }
   }
+
+  // Chips leave the treasury on assign and on a positive adjustment.
+  const requested = Number.parseInt(amount, 10)
+  const short = (action === 'assign' || action === 'adjust') && requested > 0 && requested > treasury
 
   const canManage = !self && member.role !== 'owner' && (member.role === 'player' || isOwner)
 
@@ -316,9 +372,18 @@ function MemberActions({
           placeholder={action === 'adjust' ? 'Motivo (obligatorio)' : 'Nota (opcional)'}
           maxLength={200}
         />
-        <Button type="submit" className="w-full" disabled={!amount || (action === 'adjust' && !note.trim())}>
-          Confirmar
-        </Button>
+        {short ? (
+          <>
+            <Notice tone="info">La tesorería solo tiene {formatChips(treasury)} fichas.</Notice>
+            <Button type="button" variant="secondary" className="w-full" onClick={onShort}>
+              Contactar a la plataforma
+            </Button>
+          </>
+        ) : (
+          <Button type="submit" className="w-full" disabled={!amount || (action === 'adjust' && !note.trim())}>
+            Confirmar
+          </Button>
+        )}
       </form>
       {canManage && (
         <div className="flex flex-wrap gap-2">
