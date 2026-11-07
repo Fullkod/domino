@@ -2,7 +2,8 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState, type FormEvent } from 'react'
+import { useState, useSyncExternalStore, type FormEvent } from 'react'
+import { afterSignInPath, readPendingInvite } from '@/features/invites/lib/invite'
 import { PasswordInput } from '@/shared/components/PasswordInput'
 import { Button, Field, Input, Notice } from '@/shared/components/ui'
 import { BRAND } from '@/shared/constants/brand'
@@ -34,11 +35,11 @@ export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
     try {
       if (mode === 'login') {
         await signIn(loginSchema.parse(values))
-        router.replace('/clubs/')
+        router.replace(afterSignInPath())
       } else {
         const { needsConfirmation } = await signUp(signupSchema.parse(values))
         if (needsConfirmation) setInfo('Te enviamos un correo para confirmar la cuenta.')
-        else router.replace('/clubs/')
+        else router.replace(afterSignInPath())
       }
     } catch (err) {
       setFormError(errorMessage(err))
@@ -48,6 +49,8 @@ export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
   }
 
   const isSignup = mode === 'signup'
+  // An invitation link opened before signing in (read on the client only).
+  const pendingInvite = useSyncExternalStore(noSubscribe, readPendingInvite, () => null)
 
   return (
     <div className="flex min-h-screen items-center justify-center px-5">
@@ -56,6 +59,13 @@ export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
           <h1 className="text-3xl font-bold tracking-tight">{BRAND.appName}</h1>
           <p className="text-sm text-neutral-400">{isSignup ? 'Crea tu cuenta para jugar' : BRAND.tagline}</p>
         </div>
+
+        {pendingInvite && (
+          <Notice tone="info">
+            Te invitaron a un club (código {pendingInvite}). {isSignup ? 'Crea tu cuenta' : 'Entra'} y luego pides la
+            entrada.
+          </Notice>
+        )}
 
         {isSignup && (
           <Field label="Nombre de jugador">
@@ -75,6 +85,13 @@ export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
           />
           {errors.password && <span className="text-xs text-red-400">{errors.password}</span>}
         </Field>
+        {!isSignup && (
+          <p className="-mt-3 text-right text-sm">
+            <Link href="/recuperar/" className="text-emerald-400">
+              ¿Olvidaste tu contraseña?
+            </Link>
+          </p>
+        )}
 
         {formError && <Notice>{formError}</Notice>}
         {info && <Notice tone="success">{info}</Notice>}
@@ -113,4 +130,8 @@ export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
       </form>
     </div>
   )
+}
+
+function noSubscribe() {
+  return () => undefined
 }

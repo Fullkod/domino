@@ -19,6 +19,7 @@
     "@capacitor/android": "^8.0.1",
     "@capacitor/app": "^8.0.0",
     "@capacitor/core": "^8.0.1",
+    "@capacitor/share": "^8.0.3",
     "@supabase/supabase-js": "^2.90.1",
     "next": "^16.0.0",
     "react": "^19.0.0",

@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState, type FormEvent } from 'react'
+import { NewPasswordForm } from '@/features/auth/components/NewPasswordForm'
 import { signOut } from '@/features/auth/services/auth-service'
 import { createClient } from '@/lib/supabase/client'
 import { Button, Card, Field, Input, Notice } from '@/shared/components/ui'
@@ -21,6 +22,7 @@ function ProfileForm({ initialName }: { initialName: string }) {
   const [name, setName] = useState(initialName)
   const [message, setMessage] = useState<{ tone: 'error' | 'success'; text: string } | null>(null)
   const [busy, setBusy] = useState(false)
+  const [passwordSaved, setPasswordSaved] = useState(false)
 
   async function save(e: FormEvent) {
     e.preventDefault()
@@ -58,6 +60,11 @@ function ProfileForm({ initialName }: { initialName: string }) {
             Guardar
           </Button>
         </form>
+      </Card>
+      <Card className="space-y-3">
+        <h2 className="font-semibold">Cambiar contraseña</h2>
+        {passwordSaved && <Notice tone="success">Contraseña cambiada.</Notice>}
+        <NewPasswordForm submitLabel="Cambiar contraseña" onDone={() => setPasswordSaved(true)} />
       </Card>
       <Button variant="secondary" className="w-full" onClick={logout}>
         Cerrar sesión

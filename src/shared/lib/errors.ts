@@ -29,6 +29,10 @@ const MESSAGES: Record<string, string> = {
   'User already registered': 'Ya existe una cuenta con ese correo.',
   'Password should be at least': 'La contraseña debe tener al menos 8 caracteres.',
   'Failed to fetch': 'Sin conexión. Revisa tu internet.',
+  reset_not_configured: 'La recuperación de contraseña aún no está disponible. Habla con tu club.',
+  'New password should be different': 'La nueva contraseña debe ser distinta de la anterior.',
+  'For security purposes, you can only request this': 'Espera un momento antes de pedir otro correo.',
+  'rate limit': 'Se enviaron demasiados correos. Inténtalo más tarde.',
 }
 
 export function errorMessage(error: unknown): string {

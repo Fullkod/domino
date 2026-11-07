@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.dominoclubes.app",
+      "sha256_cert_fingerprints": [
+        "8C:98:10:56:BE:BD:DC:7B:36:78:01:90:9E:54:AA:C6:39:44:E5:0B:06:E2:EE:C5:EF:04:D4:F3:0B:81:44:05"
+      ]
+    }
+  }
+]

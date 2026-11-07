@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { UpdateGate } from '@/features/app-update/components/UpdateGate'
+import { DeepLinks } from '@/features/invites/components/DeepLinks'
 import { BRAND } from '@/shared/constants/brand'
 import { SessionProvider } from '@/shared/hooks/session'
 import './globals.css'
@@ -20,7 +21,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="es">
       <body className="min-h-screen bg-neutral-950 text-neutral-100 antialiased">
         <UpdateGate>
-          <SessionProvider>{children}</SessionProvider>
+          <SessionProvider>
+            <DeepLinks />
+            {children}
+          </SessionProvider>
         </UpdateGate>
       </body>
     </html>

@@ -4,7 +4,8 @@
 # The versionCode is the published one + 1, so it keeps growing even if the repository moves
 # (BUSINESS_LOGIC §1.1 D1). Run it from Actions → "APK release" → Run workflow.
 #
-# Repository variables: NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY (public values).
+# Repository variables: NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY (public values),
+#                       NEXT_PUBLIC_APP_URL (public web: invitation links and App Links; optional).
 # Repository secrets:   ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS,
 #                       ANDROID_KEY_PASSWORD, SUPABASE_SERVICE_ROLE_KEY (upload + min version).
 name: APK release
@@ -31,6 +32,7 @@ jobs:
     env:
       NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      NEXT_PUBLIC_APP_URL: ${{ vars.NEXT_PUBLIC_APP_URL }}
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
     steps:
       - uses: actions/checkout@v4
@@ -95,8 +97,12 @@ jobs:
         working-directory: android
         run: |
           chmod +x gradlew
+          # App Links host = host of NEXT_PUBLIC_APP_URL (none configured: links stay in the browser).
+          host=$(node -e "try{console.log(new URL(process.env.NEXT_PUBLIC_APP_URL).host)}catch{console.log('localhost')}")
+          echo "App Links host: $host"
           ./gradlew --no-daemon assembleRelease \
-            -PversionCode=${{ steps.version.outputs.code }} -PversionName=${{ steps.version.outputs.name }}
+            -PversionCode=${{ steps.version.outputs.code }} -PversionName=${{ steps.version.outputs.name }} \
+            -PappLinkHost="$host"
 
       - name: Verify signature
         run: |

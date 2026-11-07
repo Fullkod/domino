@@ -60,6 +60,13 @@ Un admin de un club no ve ni toca nada de otro club.
   configuración de cargo (§6).
 - Los clubes los crea `platform`. **[DECIDIR con Daniel]** si habrá clubes de varios dueños o solo el del operador.
 - Unirse: el jugador busca el código → solicitud `pending` → un admin del club la aprueba (`active`) o la rechaza.
+- **Invitación por enlace** (2026-11-07): el admin comparte `https://<web>/unirse/?c=CÓDIGO` («Invitar» en el panel
+  del club). Con la app instalada, Android abre el APK (App Links, `/.well-known/assetlinks.json`); sin ella, la web
+  muestra el código y el botón para descargar el APK. Sin sesión, la app guarda el código, pide entrar o registrarse y
+  vuelve a la invitación. El enlace **solo crea la solicitud** `pending`: un admin la sigue aprobando.
+- **Contraseña**: «¿Olvidaste tu contraseña?» manda un enlace por correo a `https://<web>/restablecer/` (abre el APK);
+  desde el perfil se cambia sin correo. Requiere la web pública y un SMTP propio en Supabase (el de Supabase solo
+  envía a los miembros del equipo).
 - Un jugador puede pertenecer a varios clubes; su saldo es **por club** y no se mezcla.
 
 ### 3.2 Movimiento de fichas (libro de doble partida)

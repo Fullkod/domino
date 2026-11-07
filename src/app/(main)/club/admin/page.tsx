@@ -29,6 +29,7 @@ import {
 } from '@/features/clubs/services/clubs-service'
 import { ContactSheet } from '@/features/contacts/components/ContactSheet'
 import { ContactsEditor } from '@/features/contacts/components/ContactsEditor'
+import { InviteButton } from '@/features/invites/components/InviteButton'
 import { Badge, Button, Card, Field, Input, Notice, Select, Spinner, formatChips } from '@/shared/components/ui'
 import { useCurrentUser } from '@/shared/hooks/session'
 import { errorMessage } from '@/shared/lib/errors'
@@ -135,6 +136,7 @@ function ClubAdmin() {
           <Button variant="ghost">Volver</Button>
         </Link>
       </div>
+      <InviteButton clubName={data.club.club.name} code={data.club.club.code} />
 
       <Card className="space-y-3">
         <div className="flex items-center justify-between">
