@@ -17,6 +17,7 @@ Read relevant entries only. Store decisions with dates and evidence. Lógica de 
 - [2026-11-07 — Proyecto Supabase `domino` (ref, región, MCP por proyecto)](project/2026-11-07-proyecto-supabase.md)
 - [2026-11-07 — Invitación por enlace y recuperación de contraseña: programadas, esperan dominio del operador y Resend](project/2026-11-07-invitaciones-y-contrasena.md)
 - [2026-11-07 — «Contactar» en vez de recargar, operador ↔ clubes de terceros, APK por GitHub Action, Supervisión, términos](project/2026-11-07-contactos-distribucion-supervision.md)
+- [2026-11-07 — Marca: logo «La mano» (icono noche), manual de marca en `_materiales/domino/brand/`](project/2026-11-07-marca-logo-la-mano.md)
 
 ## References
 - [2026-11-07 — Domino Real, la app de referencia del operador (modelo de clubes)](reference/2026-11-07-domino-real-referencia.md)
