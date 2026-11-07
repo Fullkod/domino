@@ -30,16 +30,18 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <div className="mx-auto flex min-h-screen max-w-3xl flex-col">
-      <header className="sticky top-0 z-10 flex items-center justify-between border-b border-white/10 bg-noche/95 px-4 py-3 backdrop-blur">
-        <Link href="/clubs/" aria-label={BRAND.appName}>
-          <Logo height={26} />
+      <header className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-white/10 bg-noche/95 px-4 py-3 backdrop-blur">
+        {/* Phones: the symbol only, so the links fit (up to 4 for the platform role). */}
+        <Link href="/clubs/" aria-label={BRAND.appName} className="shrink-0">
+          <Logo variant="symbol" height={30} className="sm:hidden" />
+          <Logo height={26} className="hidden sm:block" />
         </Link>
-        <nav className="flex gap-1">
+        <nav className="flex min-w-0 gap-0.5 overflow-x-auto sm:gap-1">
           {links.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className={`rounded-lg px-3 py-1.5 text-sm font-medium ${
+              className={`shrink-0 whitespace-nowrap rounded-lg px-2.5 py-1.5 text-sm font-medium sm:px-3 ${
                 pathname?.startsWith(link.href.slice(0, -1)) ? 'bg-neutral-800 text-white' : 'text-neutral-400'
               }`}
             >

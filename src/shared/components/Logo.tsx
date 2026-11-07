@@ -8,10 +8,18 @@ const FILES = {
   symbol: { src: '/brand/domino-symbol-reversed.svg', ratio: 1 },
 } as const
 
-export function Logo({ variant = 'horizontal', height }: { variant?: keyof typeof FILES; height: number }) {
+export function Logo({
+  variant = 'horizontal',
+  height,
+  className = '',
+}: {
+  variant?: keyof typeof FILES
+  height: number
+  className?: string
+}) {
   const { src, ratio } = FILES[variant]
   return (
     // eslint-disable-next-line @next/next/no-img-element
-    <img src={src} alt={BRAND.appName} height={height} width={Math.round(height * ratio)} className="block" />
+    <img src={src} alt={BRAND.appName} height={height} width={Math.round(height * ratio)} className={`block ${className}`} />
   )
 }
