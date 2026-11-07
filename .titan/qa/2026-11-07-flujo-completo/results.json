@@ -1,0 +1,207 @@
+[
+  {
+    "name": "/ sin sesión redirige a /login",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Login vacío muestra errores de validación",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Login con credenciales malas muestra error",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Registro con contraseña corta se rechaza",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Registro superadmin → /clubs vacío",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Rol platform asignado (SQL) y menú Plataforma visible",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Registro dueño del club",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Un jugador normal no ve la plataforma",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Plataforma: crear club con correo inexistente da error",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Plataforma: crear club y emitir 20 000 fichas",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Registro Jugador Uno",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Registro Jugador Dos",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Registro Jugador Tres",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Registro Jugador Cuatro",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Buscar club con código inexistente da error",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Jugador Uno solicita entrar al club",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Jugador Dos solicita entrar al club",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Jugador Tres solicita entrar al club",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Jugador Cuatro solicita entrar al club",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Dueño ve su club y entra al panel",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Aceptar a Jugador Uno",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Aceptar a Jugador Dos",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Aceptar a Jugador Tres",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Aceptar a Jugador Cuatro",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Asignar 1 000 fichas a cada jugador",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Ajuste sin motivo está bloqueado; ajuste con motivo funciona",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Crear mesas: parejas y 1 vs 1",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Entrada fuera de rango (3) se rechaza en el formulario",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Jugador Uno entra al club y se sienta en Parejas 100",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Jugador Dos entra al club y se sienta en Parejas 100",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Jugador Tres entra al club y se sienta en Parejas 100",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Jugador Cuatro entra al club y se sienta en Parejas 100",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "La partida arranca sola con 4 listos",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Partida de parejas jugada por la interfaz hasta el final",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Liquidación: ganadores +190, perdedores −100, cargo 20",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Todos se levantan; 1 vs 1 entre Jugador Uno y Jugador Dos",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Saldos y movimientos visibles en el club",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Perfil: cambiar nombre, cerrar sesión y volver a entrar",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Caja del club con informe de 30 días",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Plataforma: cuadre correcto tras jugar",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Un jugador no puede abrir el panel del club",
+    "ok": true,
+    "detail": ""
+  }
+]

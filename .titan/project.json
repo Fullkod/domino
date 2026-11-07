@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "preferred_stack": [
+    "Next.js",
+    "Supabase",
+    "Vercel"
+  ],
+  "alternative_deploy": "EasyPanel"
+}
