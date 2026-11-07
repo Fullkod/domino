@@ -4,8 +4,8 @@
 **Estado**: PASSED (15/15)
 **Entorno**: `npm run dev` (puerto 3001) contra el Supabase online `domino`, migraciones `20261107150000`–`170000`
 aplicadas. Chromium headless, perfil Pixel 7, `es-ES`. Script fuera del repo; resultado por paso en `results.json`.
-Cuentas: las de «Cuentas de prueba» en Tasknic, más la nueva **Supervisión** (`supervision.domino@example.com`, rol
-`auditor`, contraseña en la misma nota).
+Cuentas: las de «Cuentas de prueba» en Tasknic, más la nueva **Supervisión** (rol `auditor`; creada como
+`supervision.domino@example.com` y pasada después a su correo real `domino@fullkod.com`; contraseña en la misma nota).
 
 ## Pasos
 

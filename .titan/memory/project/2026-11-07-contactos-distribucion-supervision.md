@@ -11,7 +11,9 @@ Fuente: Roberto, en sesión. Detalle de negocio en `BUSINESS_LOGIC.md` §2.1, §
   la cuenta `platform` del club) y fija `platform_share_pct` por club (0 en los propios). Liquidación siempre fuera.
 - **Supervisión** (`profiles.role = 'auditor'`, por SQL): solo lectura de los libros de fichas de la plataforma y de
   todos los clubes en `/supervision` (`audit_books`, `audit_movements`, `chip_audit`). Sin contactos ni datos
-  personales. Cuenta de prueba en la nota de Tasknic «Cuentas de prueba».
+  personales. Cuenta real: `domino@fullkod.com` (Fullkod), contraseña en la nota de Tasknic «Cuentas de prueba»;
+  **no borrarla** con las cuentas de prueba antes del piloto.
+- **Enlace de descarga** del APK en la nota de Tasknic «Descarga del APK (enlace para repartir)».
 - **APK**: se publica con el GitHub Action «APK release» (no en local; el JDK y el SDK locales se quedan solo para
   pruebas). Sube `domino.apk` (solo la última) y `latest.json` al bucket público `apk`. La app avisa de la versión
   nueva (`UpdateGate`) y bloquea por debajo de `min_app_version`. Secretos en GitHub (repo privado `Fullkod/domino`).
