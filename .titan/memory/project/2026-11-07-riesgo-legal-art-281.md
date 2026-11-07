@@ -10,5 +10,9 @@ Fuente: capturas que mandó una abogada a Roberto (Código Penal, Gaceta Oficial
   clubes ni la marca blanca lo cambian. Recomendación: modelo sin bote (la entrada se consume y va al club).
 - **Decisión de Roberto: mantener el modelo con bote por ahora** y consultarlo con la abogada con
   `.titan/plans/consulta-legal-modelo-clubes.md`. **No se pone en marcha con jugadores reales sin su respuesta.**
+- **2026-11-07 (tarde)**: consulta **ampliada** (cobro de Fullkod por comisión fuera de la app, escenarios de
+  alojarlo en cuentas de Fullkod o con marca ligada a Fullkod, clubes de terceros, contactos por WhatsApp, 12
+  preguntas) en `private/legal/consulta-abogada.html` + PDF, **ignorado por git** (solo en la máquina de Roberto).
+  Autores: Roberto Cabrera y Claudia Rodríguez. Pendiente de que Roberto la revise y la envíe.
 - Cómo aplicar: si la respuesta es negativa, el cambio es pequeño (`finish_game` manda el bote a la tesorería en lugar
   de pagar al ganador; actualizar `BUSINESS_LOGIC.md` §1, §4.3 y §6).

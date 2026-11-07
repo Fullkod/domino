@@ -10,6 +10,9 @@ Fuente: WhatsApp del operador (Daniel) y decisión de Roberto en sesión. Plan: 
 - **D1**: el dueño legal de la plataforma y de las cuentas será el **operador**; se traspasa antes del piloto.
   **D2**: Fullkod cobra con **tarifa fija o licencia**, no un % de las mesas (`platform_share_pct = 0`).
   **D3**: **revisión legal obligatoria antes del piloto**.
+- **2026-11-07 (tarde)**: D2 queda **en revisión**: se pregunta a la abogada si Fullkod puede cobrar comisión por
+  contrato aparte y fuera de la app (ver `2026-11-07-riesgo-legal-art-281.md`). Pregunta 4 a Daniel resuelta: habrá
+  clubes de otros dueños.
 - Antes de decidir se le advirtió a Roberto: con fichas pagadas por fuera y un ganador que cobra, hay apuesta con dinero
   real; quitar la marca no desvincula a Fullkod si es dueña o cobra un % (por eso D1 y D2).
 - Pendiente con Daniel: cómo funcionan las mesas Cash, de cuánto es el cargo, si se roba en 1vs1, quién abre los

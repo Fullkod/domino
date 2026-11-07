@@ -165,7 +165,8 @@ Cada fase empieza revisando el estado real del código. Las fases 1–3 se puede
    lo que lleva?
 2. El número entre paréntesis («10 500 (500)»), ¿es el cargo por partida? ¿Cuánto es normalmente (% o fijo)?
 3. ¿En 1vs1 se roba del pozo o no?
-4. ¿Los clubes los abre él solo, o habrá varios clubes de distintos dueños?
+4. ~~¿Los clubes los abre él solo, o habrá varios clubes de distintos dueños?~~ **Resuelto (Roberto, 2026-11-07): habrá
+   clubes del operador y de otros dueños** (BUSINESS_LOGIC §3.3).
 5. ¿Quién reparte las fichas: el dueño del club o también «agentes» por debajo?
 6. ¿A cuántos puntos se juega normalmente y cuánto dura el turno?
 
@@ -184,6 +185,20 @@ Cada fase empieza revisando el estado real del código. Las fases 1–3 se puede
   consultarlo con la abogada; la consulta preparada está en `.titan/plans/consulta-legal-modelo-clubes.md`.
   **No se pone en marcha con jugadores reales sin su respuesta.** Pasar al modelo sin bote = en `finish_game`,
   mandar el bote entero a la tesorería (`rake`) en lugar de pagar al ganador.
+- 2026-11-07 (tarde), decisiones de Roberto:
+  - **Nunca botón de comprar ni recargar.** Cuando faltan fichas se bloquea la acción y sale «Contactar al club»
+    (jugador) o «Contactar a la plataforma» (admin de club), con teléfonos/WhatsApp. Activado ya, sin esperar a la
+    abogada.
+  - **Habrá clubes de terceros**: el operador emite, devuelve (`retire`) y puede cobrar un % del cargo por club
+    (`platform_share_pct`, 0 en los propios). Todo acuerdo económico, fuera de la app.
+  - **Supervisión** (rol `auditor`): solo lectura de los libros de fichas de todo; cuenta real `domino@fullkod.com`.
+  - **APK por GitHub Action** y Supabase Storage (solo la última versión), con aviso de actualización en la app. El
+    JDK/SDK locales quedan solo para pruebas.
+  - **Términos y privacidad** visibles en la app (provisionales).
+  - **D2 en revisión**: se consulta a la abogada si Fullkod puede cobrar comisión (sobre ingresos del operador o por
+    actividad) por contrato aparte y fuera de la app, y los escenarios de montarlo en cuentas de Fullkod o con marca
+    ligada a Fullkod. Consulta ampliada (autores: Roberto Cabrera y Claudia Rodríguez) en `private/legal/`
+    (**ignorado por git**, HTML + PDF). Hasta su respuesta sigue valiendo D2 (tarifa fija) y la marca blanca.
 
 ## 10. Estado
 
@@ -197,15 +212,24 @@ Cada fase empieza revisando el estado real del código. Las fases 1–3 se puede
 | 4 Auth + perfil | Hecha (web) | `/login`, `/signup`, `/perfil`. Auth: confirmación por correo **desactivada** (no hay SMTP propio), contraseña mínima 8 |
 | 5 Clubes | Hecha (web) | `/clubs` (buscar por código, solicitar), `/club/admin` (solicitudes, miembros, asignar, retirar y ajustar, mesas, cargo, informe 30 días), `/platform` (crear club, emitir, suspender, cuadre) |
 | 6 Lobby y partida | Hecha (web) | `/club` (mesas, sentarse), `/mesa` (sala de espera, inicio automático, tablero, turnos, pasar, resultado). Edge Function `game-action` desplegada. E2E real con 4 usuarios: partida de 8 manos, turno vencido, jugada fuera de turno rechazada, cuadre 0, limpieza total |
-
 | QA web | **41/41** | Playwright, móvil Pixel 7, contra Supabase online: `.titan/qa/2026-11-07-flujo-completo/report.md`. 3 fallos de UI encontrados y corregidos |
 | APK | **Generado, firmado y probado** | appId neutro `com.dominoclubes.app`, icono provisional (ficha 3-5), JDK 21 + SDK 36 sin Android Studio. Clave de release fuera del repo (datos en Tasknic). `npm run apk:release`. QA en BlueStacks (Android 9): login, lobby, Realtime, partida por toques, abandono por 3 turnos, actualización encima conservando sesión: `.titan/qa/2026-11-07-apk/report.md` |
+| Contactos y operador ↔ club | **Hecho y aplicado** | Migración `20261107150000` (tabla `contacts`, `retire`, `platform_retire_chips`, `platform_set_club_share`, bucket `apk`). UI: «Contactar al club» en sala del club y mesa; «Contactar a la plataforma» en el panel del club; pestaña «Contacto»; en Plataforma, contactos, «Más opciones» (devolver fichas, % del cargo) y versión mínima |
+| Supervisión | **Hecho y aplicado** | Migraciones `20261107160000` (rol `auditor`, RLS) y `170000` (`audit_books`, `audit_movements`). Pantalla `/supervision`. QA 15/15: `.titan/qa/2026-11-07-contactos-y-supervision/report.md` |
+| Distribución del APK | **En marcha** | `.github/workflows/apk-release.yml` (manual) → `apk/domino.apk` + `latest.json` en Supabase Storage. `UpdateGate` avisa y bloquea bajo `min_app_version`. Publicadas 0.1.2 y 0.1.3; probado en BlueStacks (instala encima, aviso, descarga). Enlace en Tasknic → «Descarga del APK» |
+| Términos | **Provisionales** | `/terminos` (texto en `src/shared/constants/legal.ts`, `reviewed: false`), enlazado desde registro, login y perfil |
 
 **Pendiente**
 - APK: falta probarlo en un móvil físico con Android 15+ y, cuando haya marca, cambiar nombre e icono (`com.dominoclubes.app` se queda: cambiarlo obliga a reinstalar).
 - Turnos vencidos: los resuelve el `tick` que mandan los clientes de la mesa. Si se desconectan todos, la mesa queda parada hasta que alguien vuelva. Mejora: tarea programada (pg_cron + llamada a la función).
 - Fase 7 (informes de plataforma más completos) y fase 8 (marca blanca, traspaso de cuentas, APK firmado).
-- Bloqueo para el piloto: la respuesta legal (D3).
+- Bloqueo para el piloto: la respuesta legal (D3). Según lo que diga: modelo con o sin bote, forma de cobro de
+  Fullkod (D2), dónde se aloja y con qué marca, y la versión final de los términos (`LEGAL.reviewed = true`, nombre y
+  correo del operador en `legal.ts`).
+- Roberto tiene que revisar la consulta ampliada (`private/legal/`) antes de mandarla.
+- Sin prueba de UI: «Listo» → «Contactar al club» dentro de la mesa; abrir WhatsApp de verdad desde el APK.
+- Antes del piloto: borrar las cuentas de prueba (no `domino@fullkod.com`); decidir o traspasar el dueño de las
+  cuentas (Supabase, GitHub con sus secretos, clave de firma) según la respuesta legal.
 
 ### Aprendizajes
 

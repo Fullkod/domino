@@ -2,6 +2,9 @@
 
 Fecha: 2026-11-07 · Para: la abogada que revisa el proyecto · Estado: **pendiente de revisión**
 
+> **Ampliada el 2026-11-07** en `private/legal/consulta-abogada.html` (y PDF), fuera de git: añade el cobro de Fullkod
+> por comisión, los escenarios de alojamiento y marca, los clubes de terceros y los contactos. Usar esa versión.
+
 Esta nota describe cómo funciona la app hoy, qué partes se pueden cambiar con facilidad y qué preguntas necesitamos
 que nos responda. Referencia aportada por ella: Código Penal (Gaceta Oficial, 1 de septiembre de 2022), art. 281
 («Juegos ilícitos») y la definición de «juegos ilícitos» del glosario final.
