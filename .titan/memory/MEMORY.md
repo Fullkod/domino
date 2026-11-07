@@ -15,6 +15,7 @@ Read relevant entries only. Store decisions with dates and evidence. Lógica de 
 - [2026-11-07 — Riesgo legal art. 281; se mantiene el bote hasta la respuesta de la abogada; consulta ampliada en `private/legal/`](project/2026-11-07-riesgo-legal-art-281.md)
 - [2026-11-07 — Estado de la implementación: fases 1–6, contactos, Supervisión, APK por GitHub Action; qué falta](project/2026-11-07-estado-implementacion.md)
 - [2026-11-07 — Proyecto Supabase `domino` (ref, región, MCP por proyecto)](project/2026-11-07-proyecto-supabase.md)
+- [2026-11-07 — Invitación por enlace y recuperación de contraseña: programadas, esperan dominio del operador y Resend](project/2026-11-07-invitaciones-y-contrasena.md)
 - [2026-11-07 — «Contactar» en vez de recargar, operador ↔ clubes de terceros, APK por GitHub Action, Supervisión, términos](project/2026-11-07-contactos-distribucion-supervision.md)
 
 ## References
