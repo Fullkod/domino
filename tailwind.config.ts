@@ -13,19 +13,20 @@ const config: Config = {
         pizarra: '#625C7A',
         lavanda: '#EFEAFB',
         crema: '#FDF6DD',
-        // Neutrals tinted towards the brand violet (from Tinta, Pizarra and Lavanda).
+        // Neutrals built on Violeta Noche (brand manual §06: Noche is "el color que más se ve"):
+        // 950 is the app background, 900 cards, 800 inputs and chips, 700 borders; 100 = Lavanda.
         neutral: {
           50: '#F8F6FD',
           100: '#EFEAFB',
-          200: '#DCD6EC',
-          300: '#BDB6D1',
-          400: '#958EAD',
-          500: '#625C7A',
-          600: '#4A4463',
-          700: '#36304F',
-          800: '#262040',
-          900: '#1A1530',
-          950: '#100C20',
+          200: '#DED7F2',
+          300: '#C2B8E3',
+          400: '#9C90C6',
+          500: '#7568A3',
+          600: '#544680',
+          700: '#3D2F6E',
+          800: '#2C1F5A',
+          900: '#211546',
+          950: '#170D35',
         },
       },
       fontFamily: {

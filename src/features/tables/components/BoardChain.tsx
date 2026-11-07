@@ -30,7 +30,7 @@ function Pips({ x, y, size, value, vertical }: { x: number; y: number; size: num
             cx={x + size * (0.24 + 0.26 * col)}
             cy={y + size * (0.24 + 0.26 * row)}
             r={size * 0.085}
-            fill="#171717"
+            fill="#24104F"
           />
         )
       })}
@@ -49,14 +49,14 @@ function Tile({ t, half, highlight }: { t: LaidTile; half: number; highlight: bo
         width={t.w - 2 * inset}
         height={t.h - 2 * inset}
         rx={half * 0.16}
-        fill="#f5f5f5"
-        stroke={highlight ? '#F2B705' : '#a3a3a3'}
+        fill="#FFFFFF"
+        stroke={highlight ? '#F2B705' : '#C2B8E3'}
         strokeWidth={highlight ? 2 : 1}
       />
       {t.vertical ? (
-        <line x1={t.x + half * 0.18} x2={t.x + half * 0.82} y1={t.y + half} y2={t.y + half} stroke="#a3a3a3" strokeWidth={1} />
+        <line x1={t.x + half * 0.18} x2={t.x + half * 0.82} y1={t.y + half} y2={t.y + half} stroke="#C2B8E3" strokeWidth={1} />
       ) : (
-        <line x1={t.x + half} x2={t.x + half} y1={t.y + half * 0.18} y2={t.y + half * 0.82} stroke="#a3a3a3" strokeWidth={1} />
+        <line x1={t.x + half} x2={t.x + half} y1={t.y + half * 0.18} y2={t.y + half * 0.82} stroke="#C2B8E3" strokeWidth={1} />
       )}
       <Pips x={t.x} y={t.y} size={half} value={t.first} vertical={t.vertical} />
       <Pips x={x2} y={y2} size={half} value={t.second} vertical={t.vertical} />

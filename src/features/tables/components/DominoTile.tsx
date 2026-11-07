@@ -18,7 +18,7 @@ function Half({ value, size }: { value: number; size: 'sm' | 'md' }) {
   return (
     <span className={`grid grid-cols-3 grid-rows-3 place-items-center ${box}`} aria-hidden>
       {Array.from({ length: 9 }, (_, i) => (
-        <span key={i} className={`${dot} rounded-full ${PIPS[value]?.includes(i) ? 'bg-neutral-900' : ''}`} />
+        <span key={i} className={`${dot} rounded-full ${PIPS[value]?.includes(i) ? 'bg-noche' : ''}`} />
       ))}
     </span>
   )
@@ -42,8 +42,8 @@ export function DominoTile({
   onClick?: () => void
 }) {
   const vertical = orientation === 'vertical'
-  const className = `inline-flex ${vertical ? 'flex-col' : 'flex-row'} items-center rounded-md border bg-neutral-100 shadow ${
-    selected ? 'border-oro ring-2 ring-oro -translate-y-2' : 'border-neutral-300'
+  const className = `inline-flex ${vertical ? 'flex-col' : 'flex-row'} items-center rounded-md border bg-white shadow-md shadow-black/30 ${
+    selected ? 'border-oro ring-2 ring-oro -translate-y-2' : 'border-lavanda'
   } ${disabled ? 'opacity-40' : ''} transition`
   const divider = <span className={vertical ? 'h-px w-4/5 bg-neutral-400' : 'h-4/5 w-px self-stretch bg-neutral-400'} />
   const content = (
@@ -71,8 +71,8 @@ export function DominoTile({
 /** Face-down tile count for other players. */
 export function HiddenTiles({ count }: { count: number }) {
   return (
-    <span className="inline-flex items-center gap-1 rounded-md bg-neutral-800 px-2 py-1 text-xs text-neutral-300">
-      <span className="h-4 w-2.5 rounded-sm border border-neutral-500 bg-neutral-700" />
+    <span className="inline-flex items-center gap-1.5 rounded-md bg-neutral-800 px-2 py-1 font-mono text-xs text-neutral-200">
+      <span className="h-4 w-2.5 rounded-sm border border-violet-300/60 bg-violet-700" />
       {count}
     </span>
   )

@@ -468,24 +468,26 @@ function GameBoard({
 
   return (
     <div className="space-y-3">
-      <div className="flex justify-between rounded-lg bg-neutral-900 px-3 py-2 text-sm">
-        <span>
-          {players === 4 ? 'Nosotros' : 'Tú'} <b className="text-violet-300">{myTeamScore}</b>
+      <div className="flex items-center justify-between rounded-xl border border-white/10 bg-neutral-900 px-3 py-2 text-sm">
+        <span className="flex items-baseline gap-2">
+          {players === 4 ? 'Nosotros' : 'Tú'}
+          <b className="font-mono text-lg font-medium text-white">{myTeamScore}</b>
         </span>
-        <span className="text-neutral-500">
+        <span className="font-mono text-xs uppercase tracking-wider text-neutral-400">
           Mano {hand.handNo} · a {game.target_points}
         </span>
-        <span>
-          {players === 4 ? 'Ellos' : playerAt(seatAt(1))?.name} <b>{theirScore}</b>
+        <span className="flex items-baseline gap-2">
+          <span className="max-w-[6rem] truncate">{players === 4 ? 'Ellos' : playerAt(seatAt(1))?.name}</span>
+          <b className="font-mono text-lg font-medium text-white">{theirScore}</b>
         </span>
       </div>
 
       <div className="flex justify-center">{opponent(players === 4 ? 2 : 1)}</div>
       <div className="flex items-stretch gap-2">
         {players === 4 && <div className="flex items-center">{opponent(3)}</div>}
-        <div className="flex min-h-[9rem] min-w-0 flex-1 items-center justify-center rounded-xl bg-noche p-2">
+        <div className="flex min-h-[9rem] min-w-0 flex-1 items-center justify-center rounded-2xl bg-[radial-gradient(ellipse_at_center,#3A1C7A_0%,#24104F_75%)] p-2 shadow-inner ring-1 ring-white/10">
           {hand.board.length === 0 ? (
-            <span className="text-sm text-violet-200/70">
+            <span className="text-sm text-lavanda/70">
               {hand.requiredOpening ? `Sale el ${hand.requiredOpening[0]}-${hand.requiredOpening[1]}` : 'Mesa vacía'}
             </span>
           ) : (
@@ -509,7 +511,7 @@ function GameBoard({
         />
       )}
 
-      <div className={`rounded-xl p-3 ${myTurn ? 'bg-oro/5 ring-1 ring-oro' : 'bg-neutral-900'}`}>
+      <div className={`rounded-xl p-3 ${myTurn ? 'bg-neutral-900 ring-2 ring-oro' : 'bg-neutral-900'}`}>
         <p className={`mb-2 text-center text-sm ${myTurn ? 'font-semibold text-oro' : ''}`}>
           {hand.status !== 'playing'
             ? 'Fin de la mano'
@@ -613,15 +615,15 @@ function HandSummaryCard({
     <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/70 p-4" role="dialog" aria-modal="true" onClick={onClose}>
       <div
         className={`w-full max-w-sm space-y-4 rounded-2xl border bg-neutral-900 p-5 text-center ${
-          result.kind !== 'void' && ours ? 'border-violet-600' : 'border-neutral-700'
+          result.kind !== 'void' && ours ? 'border-oro' : 'border-neutral-700'
         }`}
         onClick={(e) => e.stopPropagation()}
       >
         <div>
-          <p className="text-xs uppercase tracking-wide text-neutral-500">Fin de la mano {summary.handNo}</p>
+          <p className="font-mono text-xs uppercase tracking-wider text-neutral-400">Fin de la mano {summary.handNo}</p>
           <p className="mt-1 text-lg font-bold">{title}</p>
           {result.kind !== 'void' && (
-            <p className={`text-sm ${ours ? 'text-violet-300' : 'text-neutral-400'}`}>
+            <p className={`text-sm ${ours ? 'font-semibold text-oro' : 'text-neutral-400'}`}>
               +{result.points} puntos {ours ? (pairs ? 'para nosotros' : 'para ti') : `para ${pairs ? 'ellos' : rival}`}
             </p>
           )}
@@ -629,11 +631,11 @@ function HandSummaryCard({
         <div className="grid grid-cols-2 gap-2">
           <div className="rounded-xl bg-neutral-800 p-3">
             <p className="truncate text-xs text-neutral-400">{pairs ? 'Nosotros' : 'Tú'}</p>
-            <p className="text-3xl font-bold text-violet-300">{mine}</p>
+            <p className="font-mono text-3xl font-medium text-white">{mine}</p>
           </div>
           <div className="rounded-xl bg-neutral-800 p-3">
             <p className="truncate text-xs text-neutral-400">{rival}</p>
-            <p className="text-3xl font-bold">{theirs}</p>
+            <p className="font-mono text-3xl font-medium text-white">{theirs}</p>
           </div>
         </div>
         <p className="text-sm text-neutral-400">

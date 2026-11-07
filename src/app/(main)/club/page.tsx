@@ -99,7 +99,7 @@ function ClubLobby() {
       <div className="flex items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold">{club.club.name}</h1>
-          <p className="text-xs text-neutral-500">Código {club.club.code}</p>
+          <p className="font-mono text-xs uppercase tracking-wider text-neutral-400">Código {club.club.code}</p>
         </div>
         {club.role !== 'player' && (
           <Link href={`/club/admin/?id=${clubId}`}>
@@ -111,7 +111,7 @@ function ClubLobby() {
       <Card className="space-y-3">
         <div className="flex items-center justify-between">
           <span className="text-sm text-neutral-400">Tus fichas</span>
-          <span className="text-2xl font-bold text-violet-300">{formatChips(club.balance)}</span>
+          <span className="font-mono text-2xl font-medium text-white">{formatChips(club.balance)}</span>
         </div>
         {club.balance === 0 && (
           <Button variant="secondary" className="w-full" onClick={() => setContactReason('No tienes fichas en este club.')}>
@@ -165,7 +165,7 @@ function ClubLobby() {
                 </div>
                 <div className="flex flex-col items-end gap-1">
                   <span className="text-sm">
-                    Entrada <span className="font-semibold">{formatChips(t.entry)}</span>
+                    Entrada <span className="font-mono font-medium">{formatChips(t.entry)}</span>
                   </span>
                   {club.balance < t.entry ? (
                     <Button variant="secondary" onClick={() => setContactReason(SHORT_REASON)} className="px-3 py-1.5">
@@ -222,7 +222,7 @@ function MovementRow({ movement, incoming }: { movement: ChipLedgerRow; incoming
         <p>{movementTitle(movement)}</p>
         <p className="text-xs text-neutral-500">{whenLabel(movement.created_at)}</p>
       </div>
-      <span className={incoming ? 'text-violet-300' : 'text-red-300'}>
+      <span className={`font-mono font-medium ${incoming ? 'text-violet-200' : 'text-red-300'}`}>
         {incoming ? '+' : '−'}
         {formatChips(movement.amount)}
       </span>

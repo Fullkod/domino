@@ -114,13 +114,13 @@ export default function SupervisionPage() {
         <h2 className="mb-2 font-semibold">Total plataforma</h2>
         <dl className="grid grid-cols-2 gap-y-1 text-sm">
           <dt className="text-neutral-400">Fichas emitidas (netas)</dt>
-          <dd className="text-right font-semibold">{formatChips(totals.issued)}</dd>
+          <dd className="text-right font-mono font-semibold">{formatChips(totals.issued)}</dd>
           <dt className="text-neutral-400">En tesorerías</dt>
-          <dd className="text-right">{formatChips(totals.treasury)}</dd>
+          <dd className="text-right font-mono">{formatChips(totals.treasury)}</dd>
           <dt className="text-neutral-400">En manos de jugadores</dt>
-          <dd className="text-right">{formatChips(totals.players)}</dd>
+          <dd className="text-right font-mono">{formatChips(totals.players)}</dd>
           <dt className="text-neutral-400">Parte de la plataforma</dt>
-          <dd className="text-right">{formatChips(totals.share)}</dd>
+          <dd className="text-right font-mono">{formatChips(totals.share)}</dd>
         </dl>
       </Card>
 
@@ -137,21 +137,21 @@ export default function SupervisionPage() {
               </div>
               <dl className="grid grid-cols-2 gap-y-0.5 text-sm">
                 <dt className="text-neutral-400">Emitidas (netas)</dt>
-                <dd className="text-right">{formatChips(b.issued)}</dd>
+                <dd className="text-right font-mono">{formatChips(b.issued)}</dd>
                 <dt className="text-neutral-400">Tesorería</dt>
-                <dd className="text-right">{formatChips(b.treasury)}</dd>
+                <dd className="text-right font-mono">{formatChips(b.treasury)}</dd>
                 <dt className="text-neutral-400">Jugadores</dt>
-                <dd className="text-right">{formatChips(b.players)}</dd>
+                <dd className="text-right font-mono">{formatChips(b.players)}</dd>
                 {Number(b.pots) > 0 && (
                   <>
                     <dt className="text-neutral-400">En mesas ahora</dt>
-                    <dd className="text-right">{formatChips(b.pots)}</dd>
+                    <dd className="text-right font-mono">{formatChips(b.pots)}</dd>
                   </>
                 )}
                 {(Number(b.platform_share_pct) > 0 || Number(b.platform_share) > 0) && (
                   <>
                     <dt className="text-neutral-400">Parte plataforma ({b.platform_share_pct} %)</dt>
-                    <dd className="text-right">{formatChips(b.platform_share)}</dd>
+                    <dd className="text-right font-mono">{formatChips(b.platform_share)}</dd>
                   </>
                 )}
               </dl>
@@ -187,7 +187,7 @@ export default function SupervisionPage() {
               <li key={m.id} className="py-2">
                 <div className="flex items-center justify-between gap-2">
                   <p className="font-medium">{MOVEMENT_LABEL[m.kind] ?? m.kind}</p>
-                  <span className="font-semibold">{formatChips(m.amount)}</span>
+                  <span className="font-mono font-medium">{formatChips(m.amount)}</span>
                 </div>
                 <p className="text-xs text-neutral-400">
                   {accountLabel(m.from_kind, m.from_name)} → {accountLabel(m.to_kind, m.to_name)}

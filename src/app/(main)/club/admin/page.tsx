@@ -141,7 +141,7 @@ function ClubAdmin() {
       <Card className="space-y-3">
         <div className="flex items-center justify-between">
           <span className="text-sm text-neutral-400">Fichas del club (tesorería)</span>
-          <span className="text-2xl font-bold">{formatChips(data.treasury)}</span>
+          <span className="font-mono text-2xl font-medium">{formatChips(data.treasury)}</span>
         </div>
         {data.treasury === 0 && (
           <Button variant="secondary" className="w-full" onClick={() => setPlatformContact('La tesorería del club está vacía.')}>
@@ -282,7 +282,7 @@ function Members({
                     {m.status !== 'active' && <Badge tone="red">{STATUS_LABEL[m.status]}</Badge>}
                   </div>
                 </div>
-                <span className="font-semibold text-violet-300">{formatChips(m.balance)}</span>
+                <span className="font-mono font-medium text-white">{formatChips(m.balance)}</span>
               </button>
               {open === m.userId && (
                 <MemberActions
@@ -535,19 +535,19 @@ function Treasury({ data, clubId, isOwner, act }: { data: AdminData; clubId: str
           <h2 className="mb-2 font-semibold">Últimos 30 días</h2>
           <dl className="grid grid-cols-2 gap-y-1 text-sm">
             <dt className="text-neutral-400">Partidas</dt>
-            <dd className="text-right">
+            <dd className="text-right font-mono">
               {r.games} ({r.cancelled_games} anuladas)
             </dd>
             <dt className="text-neutral-400">Botes jugados</dt>
-            <dd className="text-right">{formatChips(r.pot_total)}</dd>
+            <dd className="text-right font-mono">{formatChips(r.pot_total)}</dd>
             <dt className="text-neutral-400">Cargos cobrados</dt>
-            <dd className="text-right">{formatChips(r.rake_total)}</dd>
+            <dd className="text-right font-mono">{formatChips(r.rake_total)}</dd>
             <dt className="text-neutral-400">Fichas recibidas</dt>
-            <dd className="text-right">{formatChips(r.chips_issued)}</dd>
+            <dd className="text-right font-mono">{formatChips(r.chips_issued)}</dd>
             <dt className="text-neutral-400">Asignadas a jugadores</dt>
-            <dd className="text-right">{formatChips(r.chips_assigned)}</dd>
+            <dd className="text-right font-mono">{formatChips(r.chips_assigned)}</dd>
             <dt className="text-neutral-400">Retiradas a jugadores</dt>
-            <dd className="text-right">{formatChips(r.chips_withdrawn)}</dd>
+            <dd className="text-right font-mono">{formatChips(r.chips_withdrawn)}</dd>
           </dl>
         </Card>
       )}
@@ -586,7 +586,7 @@ function Treasury({ data, clubId, isOwner, act }: { data: AdminData; clubId: str
                     {m.note ? ` · ${m.note}` : ''}
                   </p>
                 </div>
-                <span>{formatChips(m.amount)}</span>
+                <span className="font-mono">{formatChips(m.amount)}</span>
               </li>
             ))}
           </ul>

@@ -30,7 +30,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <div className="mx-auto flex min-h-screen max-w-3xl flex-col">
-      <header className="sticky top-0 z-10 flex items-center justify-between border-b border-neutral-800 bg-neutral-950/95 px-4 py-3 backdrop-blur">
+      <header className="sticky top-0 z-10 flex items-center justify-between border-b border-white/10 bg-noche/95 px-4 py-3 backdrop-blur">
         <Link href="/clubs/" aria-label={BRAND.appName}>
           <Logo height={26} />
         </Link>

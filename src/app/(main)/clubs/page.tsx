@@ -49,7 +49,7 @@ export default function ClubsPage() {
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="text-lg font-semibold">{club.name}</p>
-                    <p className="text-xs text-neutral-500">Código {club.code}</p>
+                    <p className="font-mono text-xs uppercase tracking-wider text-neutral-400">Código {club.code}</p>
                   </div>
                   <div className="flex flex-col items-end gap-1">
                     {status !== 'active' && <Badge tone={status === 'pending' ? 'amber' : 'red'}>{STATUS_LABEL[status]}</Badge>}
@@ -59,7 +59,7 @@ export default function ClubsPage() {
                 </div>
                 {status === 'active' && (
                   <p className="mt-3 text-sm text-neutral-300">
-                    Tus fichas: <span className="font-semibold text-violet-300">{formatChips(balance)}</span>
+                    Tus fichas: <span className="font-mono font-medium text-white">{formatChips(balance)}</span>
                   </p>
                 )}
                 {status === 'pending' && (
@@ -79,7 +79,7 @@ function ClubCard({ clubId, active, children }: { clubId: string; active: boolea
   if (!active) return <Card>{children}</Card>
   return (
     <Link href={`/club/?id=${clubId}`} className="block">
-      <Card className="transition hover:border-violet-700">{children}</Card>
+      <Card className="transition hover:border-violet-500">{children}</Card>
     </Link>
   )
 }
@@ -136,7 +136,7 @@ function JoinClub({ onJoined }: { onJoined: () => Promise<void> }) {
           placeholder="Código del club"
           maxLength={6}
           autoCapitalize="characters"
-          className="uppercase tracking-widest"
+          className="font-mono uppercase tracking-widest"
         />
         <Button type="submit" variant="secondary" disabled={busy}>
           Buscar

@@ -14,5 +14,6 @@ Fuente: Roberto, en sesión (eligió entre 4 rondas y 16 propuestas; las demás 
 - **Aplicada en la app (2026-11-07, APK 0.1.5)**: icono adaptable y pantalla de carga (`assets/` → `npm run
   assets:icons`, fondo `#24104F`), favicon, iconos y `site.webmanifest` en `public/`, logos en `public/brand/`
   (`Logo.tsx`: horizontal en la cabecera, vertical en las pantallas públicas), tipografías con `next/font/google`
-  (se incrustan en el build), colores en `tailwind.config.ts` (`noche`, `oro`, neutros con tinte violeta; violeta =
-  `violet-800`). El oro solo para tu turno, la ficha elegida y la última jugada. Lema en `BRAND.tagline`.
+  (se incrustan en el build), colores en `tailwind.config.ts` (`noche`, `oro`, `lavanda`…; la escala `neutral` está construida sobre
+  Violeta Noche: 950 fondo `#170D35`, 900 tarjetas; acciones en `violet-600`). Cabecera y tapete en Noche; fichas
+  blancas con puntos Noche; cifras, códigos y saldos en JetBrains Mono. El oro solo para tu turno, la ficha elegida y la última jugada. Lema en `BRAND.tagline`.

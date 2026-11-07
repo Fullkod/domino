@@ -171,7 +171,7 @@ function ClubRow({ item, act }: { item: PlatformClub; act: Act }) {
         </div>
         <div className="text-right">
           <p className="text-xs text-neutral-500">Tesorería</p>
-          <p className="font-semibold">{formatChips(item.treasury)}</p>
+          <p className="font-mono font-medium">{formatChips(item.treasury)}</p>
           {Number(club.platform_share_pct) > 0 && (
             <p className="text-xs text-neutral-500">
               Para la plataforma: {formatChips(item.platformShare)} ({club.platform_share_pct} % del cargo)
