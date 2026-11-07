@@ -240,3 +240,10 @@ Cada fase empieza revisando el estado real del código. Las fases 1–3 se puede
 
 ### 2026-11-07: `next dev` reescribe `AGENTS.md`
 - Next 16 añade un bloque `nextjs-agent-rules` a `AGENTS.md` en cada `next dev`. Es inofensivo: se commitea.
+
+### 2026-11-07: `android-actions/setup-android@v3` falla en el runner
+- **Error**: con los paquetes por defecto (`tools platform-tools`), `sdkmanager` termina con código 1: el paquete
+  antiguo `tools` ya no existe.
+- **Fix**: `packages: 'platform-tools platforms;android-36 build-tools;36.0.0'` en `.github/workflows/apk-release.yml`.
+- **Aplicar en**: cualquier workflow de Android/Capacitor de otros proyectos.
+

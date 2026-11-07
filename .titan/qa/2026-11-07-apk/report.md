@@ -22,6 +22,9 @@ que juega por la misma API que la app (`game-action`).
 | 8 | Dejar vencer 3 turnos seguidos | «Partida anulada por abandono en la primera mano». En BD: partida `cancelled`, Jugador Dos con la entrada devuelta, Jugador Uno pierde los 50 (van a la tesorería), `chip_audit()` sin problemas | `07-abandono.png` |
 | 9 | Reinstalar encima un APK nuevo con la misma firma | Se instala sin desinstalar y **se conserva la sesión** | `08-barra-corregida.png` |
 | 10 | Botón «atrás» de Android dentro del club | Vuelve a «Mis clubes»; la app no se cierra | — |
+| 11 | APK 0.1.2 compilado y firmado por el GitHub Action, bajado de Supabase Storage e instalado encima del 1.0 local | Se instala sin desinstalar (misma firma) y conserva la sesión; sin aviso, porque es la última | `09-v012-ci.png` |
+| 12 | Se publica 0.1.3 y se vuelve a abrir la app | Franja «Hay una versión nueva de la app» con «Actualizar» y «Ahora no» | `10-aviso-actualizacion.png` |
+| 13 | Tocar «Actualizar» | Se abre el navegador y descarga `domino.apk?v=3` | `11-descarga.png` |
 
 ## Fallo encontrado y corregido
 
