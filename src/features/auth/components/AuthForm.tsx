@@ -7,13 +7,18 @@ import { DownloadAppButton } from '@/features/app-update/components/DownloadAppB
 import { afterSignInPath, readPendingInvite } from '@/features/invites/lib/invite'
 import { PasswordInput } from '@/shared/components/PasswordInput'
 import { Button, Field, Input, Notice } from '@/shared/components/ui'
+import { Logo } from '@/shared/components/Logo'
 import { BRAND } from '@/shared/constants/brand'
 import { errorMessage } from '@/shared/lib/errors'
 import { fieldErrors, loginSchema, signIn, signUp, signupSchema } from '../services/auth-service'
 
 export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
   const router = useRouter()
-  const [values, setValues] = useState({ displayName: '', email: '', password: '' })
+  const [values, setValues] = useState({
+    displayName: '',
+    email: '',
+    password: '',
+  })
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [formError, setFormError] = useState<string | null>(null)
   const [info, setInfo] = useState<string | null>(null)
@@ -57,7 +62,10 @@ export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
     <div className="flex min-h-screen items-center justify-center px-5">
       <form onSubmit={onSubmit} className="w-full max-w-sm space-y-5" noValidate>
         <div className="space-y-1 text-center">
-          <h1 className="text-3xl font-bold tracking-tight">{BRAND.appName}</h1>
+          <div className="flex justify-center">
+            <Logo variant="stacked" height={104} />
+          </div>
+          <h1 className="sr-only">{BRAND.appName}</h1>
           <p className="text-sm text-neutral-400">{isSignup ? 'Crea tu cuenta para jugar' : BRAND.tagline}</p>
         </div>
 
@@ -88,7 +96,7 @@ export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
         </Field>
         {!isSignup && (
           <p className="-mt-3 text-right text-sm">
-            <Link href="/recuperar/" className="text-emerald-400">
+            <Link href="/recuperar/" className="text-violet-400">
               ¿Olvidaste tu contraseña?
             </Link>
           </p>
@@ -100,11 +108,11 @@ export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
         {isSignup && (
           <p className="text-xs text-neutral-500">
             Al crear la cuenta confirmas que tienes 18 años o más y aceptas los{' '}
-            <Link href="/terminos/" className="text-emerald-400 underline">
+            <Link href="/terminos/" className="text-violet-400 underline">
               términos y condiciones
             </Link>{' '}
             y la{' '}
-            <Link href="/terminos/#privacidad" className="text-emerald-400 underline">
+            <Link href="/terminos/#privacidad" className="text-violet-400 underline">
               privacidad
             </Link>
             .
@@ -117,7 +125,7 @@ export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
 
         <p className="text-center text-sm text-neutral-400">
           {isSignup ? '¿Ya tienes cuenta? ' : '¿No tienes cuenta? '}
-          <Link href={isSignup ? '/login/' : '/signup/'} className="font-semibold text-emerald-400">
+          <Link href={isSignup ? '/login/' : '/signup/'} className="font-semibold text-violet-400">
             {isSignup ? 'Entra' : 'Regístrate'}
           </Link>
         </p>

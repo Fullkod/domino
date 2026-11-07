@@ -43,7 +43,7 @@ export function DominoTile({
 }) {
   const vertical = orientation === 'vertical'
   const className = `inline-flex ${vertical ? 'flex-col' : 'flex-row'} items-center rounded-md border bg-neutral-100 shadow ${
-    selected ? 'border-emerald-400 ring-2 ring-emerald-400 -translate-y-2' : 'border-neutral-300'
+    selected ? 'border-oro ring-2 ring-oro -translate-y-2' : 'border-neutral-300'
   } ${disabled ? 'opacity-40' : ''} transition`
   const divider = <span className={vertical ? 'h-px w-4/5 bg-neutral-400' : 'h-4/5 w-px self-stretch bg-neutral-400'} />
   const content = (

@@ -282,7 +282,7 @@ function Members({
                     {m.status !== 'active' && <Badge tone="red">{STATUS_LABEL[m.status]}</Badge>}
                   </div>
                 </div>
-                <span className="font-semibold text-emerald-300">{formatChips(m.balance)}</span>
+                <span className="font-semibold text-violet-300">{formatChips(m.balance)}</span>
               </button>
               {open === m.userId && (
                 <MemberActions
@@ -357,7 +357,7 @@ function MemberActions({
               type="button"
               key={value}
               onClick={() => setAction(value)}
-              className={`rounded-lg py-1.5 text-sm ${action === value ? 'bg-emerald-500 text-neutral-950' : 'bg-neutral-800'}`}
+              className={`rounded-lg py-1.5 text-sm ${action === value ? 'bg-violet-700 text-white' : 'bg-neutral-800'}`}
             >
               {label}
             </button>

@@ -11,6 +11,8 @@ Fuente: Roberto, en sesión (eligió entre 4 rondas y 16 propuestas; las demás 
 - **Kit y manual fuera del repo**, en `C:\Local-Disc-D\Project\Fullkod\_materiales\domino\brand\` (README con cómo
   regenerar). El manual lleva el logo de Fullkod en los créditos («Hecho por»), a petición de Roberto. La app sigue
   siendo marca blanca: nada de Fullkod en la UI, el APK ni la web pública.
-- `kit/android/` trae el icono adaptable (primer plano + fondo `#24104F`) para el APK. Pendiente: aplicarlo en
-  `android/` (mipmaps), favicon y `site.webmanifest` de la web, y cargar las tipografías en la app (hoy no carga
-  ninguna). El icono provisional de `assets/` queda superado.
+- **Aplicada en la app (2026-11-07, APK 0.1.5)**: icono adaptable y pantalla de carga (`assets/` → `npm run
+  assets:icons`, fondo `#24104F`), favicon, iconos y `site.webmanifest` en `public/`, logos en `public/brand/`
+  (`Logo.tsx`: horizontal en la cabecera, vertical en las pantallas públicas), tipografías con `next/font/google`
+  (se incrustan en el build), colores en `tailwind.config.ts` (`noche`, `oro`, neutros con tinte violeta; violeta =
+  `violet-800`). El oro solo para tu turno, la ficha elegida y la última jugada. Lema en `BRAND.tagline`.

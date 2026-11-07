@@ -29,7 +29,7 @@ export default function TermsPage() {
     <div className="mx-auto max-w-2xl space-y-6 px-4 py-6 text-sm leading-relaxed text-neutral-300">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-white">Términos y condiciones</h1>
-        <Link href="/" className="text-sm text-emerald-400">
+        <Link href="/" className="text-sm text-violet-400">
           Volver
         </Link>
       </div>

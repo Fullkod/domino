@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  /* Brand manual §07: Outfit for headings, DM Sans for text, JetBrains Mono for figures. */
+  h1,
+  h2,
+  h3 {
+    font-family: theme('fontFamily.display');
+  }
+}
+
 html {
   color-scheme: dark;
   -webkit-tap-highlight-color: transparent;

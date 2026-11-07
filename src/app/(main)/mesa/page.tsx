@@ -340,13 +340,13 @@ function GameResult({ view, userId }: { view: TableView; userId: string }) {
   }
   const won = me !== undefined && me.team === game.winner_team
   return (
-    <Card className={won ? 'border-emerald-700' : ''}>
+    <Card className={won ? 'border-violet-700' : ''}>
       <p className="text-lg font-bold">{won ? '¡Ganaste!' : 'Perdiste'}</p>
       <p className="text-sm text-neutral-400">
         Marcador {game.score_team0} – {game.score_team1}
         {game.end_reason === 'abandoned' && ' · por abandono'}
       </p>
-      {won && me && <p className="mt-1 text-sm text-emerald-300">+{formatChips(me.payout)} fichas</p>}
+      {won && me && <p className="mt-1 text-sm text-violet-300">+{formatChips(me.payout)} fichas</p>}
     </Card>
   )
 }
@@ -458,10 +458,10 @@ function GameBoard({
     const p = playerAt(seat)
     const isTurn = hand.status === 'playing' && hand.turnSeat === seat
     return (
-      <div className={`flex flex-col items-center gap-1 rounded-lg px-2 py-1 ${isTurn ? 'bg-emerald-950 ring-1 ring-emerald-600' : ''}`}>
+      <div className={`flex flex-col items-center gap-1 rounded-lg px-2 py-1 ${isTurn ? 'bg-oro/10 ring-1 ring-oro' : ''}`}>
         <span className="max-w-[7rem] truncate text-xs font-medium">{p?.name ?? '—'}</span>
         <HiddenTiles count={hand.tileCounts[seat] ?? 0} />
-        {isTurn && remaining !== null && <span className="text-xs text-emerald-300">{remaining}s</span>}
+        {isTurn && remaining !== null && <span className="font-mono text-xs text-oro">{remaining}s</span>}
       </div>
     )
   }
@@ -470,7 +470,7 @@ function GameBoard({
     <div className="space-y-3">
       <div className="flex justify-between rounded-lg bg-neutral-900 px-3 py-2 text-sm">
         <span>
-          {players === 4 ? 'Nosotros' : 'Tú'} <b className="text-emerald-300">{myTeamScore}</b>
+          {players === 4 ? 'Nosotros' : 'Tú'} <b className="text-violet-300">{myTeamScore}</b>
         </span>
         <span className="text-neutral-500">
           Mano {hand.handNo} · a {game.target_points}
@@ -483,9 +483,9 @@ function GameBoard({
       <div className="flex justify-center">{opponent(players === 4 ? 2 : 1)}</div>
       <div className="flex items-stretch gap-2">
         {players === 4 && <div className="flex items-center">{opponent(3)}</div>}
-        <div className="flex min-h-[9rem] min-w-0 flex-1 items-center justify-center rounded-xl bg-emerald-950/60 p-2">
+        <div className="flex min-h-[9rem] min-w-0 flex-1 items-center justify-center rounded-xl bg-noche p-2">
           {hand.board.length === 0 ? (
-            <span className="text-sm text-emerald-200/70">
+            <span className="text-sm text-violet-200/70">
               {hand.requiredOpening ? `Sale el ${hand.requiredOpening[0]}-${hand.requiredOpening[1]}` : 'Mesa vacía'}
             </span>
           ) : (
@@ -509,8 +509,8 @@ function GameBoard({
         />
       )}
 
-      <div className={`rounded-xl p-3 ${myTurn ? 'bg-emerald-950/40 ring-1 ring-emerald-600' : 'bg-neutral-900'}`}>
-        <p className="mb-2 text-center text-sm">
+      <div className={`rounded-xl p-3 ${myTurn ? 'bg-oro/5 ring-1 ring-oro' : 'bg-neutral-900'}`}>
+        <p className={`mb-2 text-center text-sm ${myTurn ? 'font-semibold text-oro' : ''}`}>
           {hand.status !== 'playing'
             ? 'Fin de la mano'
             : myTurn
@@ -613,7 +613,7 @@ function HandSummaryCard({
     <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/70 p-4" role="dialog" aria-modal="true" onClick={onClose}>
       <div
         className={`w-full max-w-sm space-y-4 rounded-2xl border bg-neutral-900 p-5 text-center ${
-          result.kind !== 'void' && ours ? 'border-emerald-600' : 'border-neutral-700'
+          result.kind !== 'void' && ours ? 'border-violet-600' : 'border-neutral-700'
         }`}
         onClick={(e) => e.stopPropagation()}
       >
@@ -621,7 +621,7 @@ function HandSummaryCard({
           <p className="text-xs uppercase tracking-wide text-neutral-500">Fin de la mano {summary.handNo}</p>
           <p className="mt-1 text-lg font-bold">{title}</p>
           {result.kind !== 'void' && (
-            <p className={`text-sm ${ours ? 'text-emerald-300' : 'text-neutral-400'}`}>
+            <p className={`text-sm ${ours ? 'text-violet-300' : 'text-neutral-400'}`}>
               +{result.points} puntos {ours ? (pairs ? 'para nosotros' : 'para ti') : `para ${pairs ? 'ellos' : rival}`}
             </p>
           )}
@@ -629,7 +629,7 @@ function HandSummaryCard({
         <div className="grid grid-cols-2 gap-2">
           <div className="rounded-xl bg-neutral-800 p-3">
             <p className="truncate text-xs text-neutral-400">{pairs ? 'Nosotros' : 'Tú'}</p>
-            <p className="text-3xl font-bold text-emerald-300">{mine}</p>
+            <p className="text-3xl font-bold text-violet-300">{mine}</p>
           </div>
           <div className="rounded-xl bg-neutral-800 p-3">
             <p className="truncate text-xs text-neutral-400">{rival}</p>

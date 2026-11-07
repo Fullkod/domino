@@ -60,7 +60,7 @@ export default function RecoverPage() {
         </form>
       )}
       <p className="text-center text-sm">
-        <Link href="/login/" className="text-emerald-400">
+        <Link href="/login/" className="text-violet-400">
           Volver a entrar
         </Link>
       </p>

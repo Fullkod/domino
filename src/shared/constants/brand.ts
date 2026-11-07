@@ -2,7 +2,9 @@
 // the developer's name must never appear in the app, the APK or the public web.
 export const BRAND = {
   appName: 'Dominó',
-  tagline: 'Dominó online con tu club',
+  tagline: 'Tu club, en tu mano',
+  /** Descriptive line for downloads and stores (brand manual §01). */
+  description: 'Dominó online con tu club',
   /**
    * Public web address (invitation links, password reset, Android App Links). NEXT_PUBLIC_APP_URL
    * overrides it (e.g. when the operator's own domain arrives); no trailing slash.

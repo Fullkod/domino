@@ -111,7 +111,7 @@ function ClubLobby() {
       <Card className="space-y-3">
         <div className="flex items-center justify-between">
           <span className="text-sm text-neutral-400">Tus fichas</span>
-          <span className="text-2xl font-bold text-emerald-300">{formatChips(club.balance)}</span>
+          <span className="text-2xl font-bold text-violet-300">{formatChips(club.balance)}</span>
         </div>
         {club.balance === 0 && (
           <Button variant="secondary" className="w-full" onClick={() => setContactReason('No tienes fichas en este club.')}>
@@ -138,7 +138,7 @@ function ClubLobby() {
           <button
             key={value}
             onClick={() => setFilter(value)}
-            className={`rounded-full px-3 py-1 text-sm ${filter === value ? 'bg-emerald-500 text-neutral-950' : 'bg-neutral-800 text-neutral-300'}`}
+            className={`rounded-full px-3 py-1 text-sm ${filter === value ? 'bg-violet-700 text-white' : 'bg-neutral-800 text-neutral-300'}`}
           >
             {label}
           </button>
@@ -222,7 +222,7 @@ function MovementRow({ movement, incoming }: { movement: ChipLedgerRow; incoming
         <p>{movementTitle(movement)}</p>
         <p className="text-xs text-neutral-500">{whenLabel(movement.created_at)}</p>
       </div>
-      <span className={incoming ? 'text-emerald-300' : 'text-red-300'}>
+      <span className={incoming ? 'text-violet-300' : 'text-red-300'}>
         {incoming ? '+' : '−'}
         {formatChips(movement.amount)}
       </span>

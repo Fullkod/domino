@@ -46,7 +46,7 @@ export default function ResetPage() {
         <>
           <Notice>El enlace no es válido o ya caducó. Pide otro.</Notice>
           <p className="text-center text-sm">
-            <Link href="/recuperar/" className="text-emerald-400">
+            <Link href="/recuperar/" className="text-violet-400">
               Pedir otro enlace
             </Link>
           </p>
@@ -58,7 +58,7 @@ export default function ResetPage() {
           <Notice tone="success">Contraseña cambiada. Ya estás dentro.</Notice>
           <button
             type="button"
-            className="w-full text-center text-sm text-emerald-400"
+            className="w-full text-center text-sm text-violet-400"
             onClick={() => router.replace('/clubs/')}
           >
             Ir a mis clubes

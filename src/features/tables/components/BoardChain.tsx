@@ -50,7 +50,7 @@ function Tile({ t, half, highlight }: { t: LaidTile; half: number; highlight: bo
         height={t.h - 2 * inset}
         rx={half * 0.16}
         fill="#f5f5f5"
-        stroke={highlight ? '#34d399' : '#a3a3a3'}
+        stroke={highlight ? '#F2B705' : '#a3a3a3'}
         strokeWidth={highlight ? 2 : 1}
       />
       {t.vertical ? (

@@ -248,7 +248,7 @@ function ClubTerms({ item, act }: { item: PlatformClub; act: Act }) {
               type="button"
               key={value}
               onClick={() => setSource(value)}
-              className={`rounded-lg py-1.5 text-xs ${source === value ? 'bg-emerald-500 text-neutral-950' : 'bg-neutral-800'}`}
+              className={`rounded-lg py-1.5 text-xs ${source === value ? 'bg-violet-700 text-white' : 'bg-neutral-800'}`}
             >
               {label}
             </button>

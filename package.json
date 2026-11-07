@@ -13,7 +13,7 @@
     "cap:android": "npx cap open android",
     "apk:debug": "npm run cap:sync && node scripts/android-gradle.mjs assembleDebug",
     "apk:release": "npm run cap:sync && node scripts/android-gradle.mjs assembleRelease",
-    "assets:icons": "capacitor-assets generate --android --iconBackgroundColor \"#065f46\" --splashBackgroundColor \"#0a0a0a\" --splashBackgroundColorDark \"#0a0a0a\""
+    "assets:icons": "capacitor-assets generate --android --iconBackgroundColor \"#24104F\" --splashBackgroundColor \"#24104F\" --splashBackgroundColorDark \"#24104F\""
   },
   "dependencies": {
     "@capacitor/android": "^8.0.1",

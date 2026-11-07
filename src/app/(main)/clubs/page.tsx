@@ -59,7 +59,7 @@ export default function ClubsPage() {
                 </div>
                 {status === 'active' && (
                   <p className="mt-3 text-sm text-neutral-300">
-                    Tus fichas: <span className="font-semibold text-emerald-300">{formatChips(balance)}</span>
+                    Tus fichas: <span className="font-semibold text-violet-300">{formatChips(balance)}</span>
                   </p>
                 )}
                 {status === 'pending' && (
@@ -79,7 +79,7 @@ function ClubCard({ clubId, active, children }: { clubId: string; active: boolea
   if (!active) return <Card>{children}</Card>
   return (
     <Link href={`/club/?id=${clubId}`} className="block">
-      <Card className="transition hover:border-emerald-700">{children}</Card>
+      <Card className="transition hover:border-violet-700">{children}</Card>
     </Link>
   )
 }

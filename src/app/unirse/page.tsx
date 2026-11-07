@@ -8,6 +8,7 @@ import { DownloadAppButton } from '@/features/app-update/components/DownloadAppB
 import { findClub, listMyClubs, requestJoinClub, type MyClub } from '@/features/clubs/services/clubs-service'
 import { cleanCode, clearPendingInvite, invitePath, savePendingInvite } from '@/features/invites/lib/invite'
 import { Button, Card, Notice, Spinner } from '@/shared/components/ui'
+import { Logo } from '@/shared/components/Logo'
 import { BRAND } from '@/shared/constants/brand'
 import { useSession } from '@/shared/hooks/session'
 import { errorMessage } from '@/shared/lib/errors'
@@ -27,7 +28,10 @@ function Shell({ children }: { children: React.ReactNode }) {
   return (
     <div className="mx-auto flex min-h-screen max-w-sm flex-col justify-center gap-5 px-5 py-10">
       <div className="text-center">
-        <h1 className="text-3xl font-bold tracking-tight">{BRAND.appName}</h1>
+        <div className="flex justify-center">
+          <Logo variant="stacked" height={104} />
+        </div>
+        <h1 className="sr-only">{BRAND.appName}</h1>
         <p className="text-sm text-neutral-400">{BRAND.tagline}</p>
       </div>
       {children}
@@ -64,7 +68,7 @@ function CodeBox({ code }: { code: string }) {
   return (
     <div className="rounded-xl border border-neutral-800 bg-neutral-900 p-4 text-center">
       <p className="text-xs text-neutral-500">Código del club</p>
-      <p className="font-mono text-3xl font-bold tracking-[0.3em] text-emerald-300">{code}</p>
+      <p className="font-mono text-3xl font-bold tracking-[0.3em] text-violet-300">{code}</p>
     </div>
   )
 }

@@ -4,6 +4,7 @@ import { App } from '@capacitor/app'
 import { Capacitor } from '@capacitor/core'
 import { useEffect, useState, type ReactNode } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { Logo } from '@/shared/components/Logo'
 import { BRAND } from '@/shared/constants/brand'
 import { compareVersions } from '@/shared/lib/version'
 import { LATEST_URL } from '../lib/apk'
@@ -20,7 +21,6 @@ interface Latest {
 }
 
 type State = { kind: 'ok' } | { kind: 'available'; latest: Latest } | { kind: 'required'; latest: Latest | null }
-
 
 async function check(): Promise<State> {
   const [info, latest, settings] = await Promise.all([
@@ -64,12 +64,15 @@ export function UpdateGate({ children }: { children: ReactNode }) {
   if (state.kind === 'required') {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-6 text-center">
-        <h1 className="text-2xl font-bold">{BRAND.appName}</h1>
+        <div className="flex justify-center">
+          <Logo variant="stacked" height={104} />
+        </div>
+        <h1 className="sr-only">{BRAND.appName}</h1>
         <p className="text-neutral-300">Hay que actualizar la app para seguir jugando.</p>
         {state.latest ? (
           <a
             href={downloadUrl(state.latest)}
-            className="rounded-lg bg-emerald-500 px-5 py-3 font-semibold text-neutral-950"
+            className="rounded-lg bg-violet-700 px-5 py-3 font-semibold text-white"
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -86,13 +89,18 @@ export function UpdateGate({ children }: { children: ReactNode }) {
   return (
     <>
       {state.kind === 'available' && !dismissed && (
-        <div className="flex items-center justify-between gap-3 bg-emerald-900 px-4 py-2 text-sm text-emerald-50">
+        <div className="flex items-center justify-between gap-3 bg-violet-900 px-4 py-2 text-sm text-violet-50">
           <span>Hay una versión nueva de la app.</span>
           <span className="flex shrink-0 gap-3">
-            <a href={downloadUrl(state.latest)} target="_blank" rel="noopener noreferrer" className="font-semibold underline">
+            <a
+              href={downloadUrl(state.latest)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold underline"
+            >
               Actualizar
             </a>
-            <button onClick={() => setDismissed(true)} aria-label="Ahora no" className="text-emerald-200">
+            <button onClick={() => setDismissed(true)} aria-label="Ahora no" className="text-violet-200">
               Ahora no
             </button>
           </span>
